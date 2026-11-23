@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>신나는 유아 영어 놀이터</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+    * { box-sizing: border-box; font-family: 'Jua', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; padding: 0; background: #FFF9EC; color: #333; min-height: 100vh; }
+    header { background: linear-gradient(135deg, #3A86FF, #2EC4B6); color: #fff; padding: 14px 18px; font-size: 1.4rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .voice-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .voice-select { background: rgba(255,255,255,0.95); color: #333; border: 2px solid #FFE082; padding: 6px 12px; border-radius: 16px; font-size: 0.95rem; cursor: pointer; outline: none; }
+    .voice-status { font-size: 0.82rem; background: rgba(0,0,0,0.18); padding: 4px 10px; border-radius: 12px; color: #FFFDF7; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .star-badge { background: #FFD166; color: #5A3A00; padding: 6px 14px; border-radius: 20px; font-size: 1.05rem; }
+    nav { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 12px; background: #EBF5FF; }
+    @media (min-width: 720px) { nav { grid-template-columns: repeat(5, 1fr); } }
+    .nav-btn { background: #fff; border: 3px solid #90CAF9; border-radius: 16px; padding: 10px 6px; font-size: 1rem; cursor: pointer; color: #444; }
+    .nav-btn.active { background: #3A86FF; color: #fff; border-color: #1D4ED8; }
+    main { padding: 18px; max-width: 980px; margin: 0 auto; }
+    .section { display: none; }
+    .section.active { display: block; }
+    h2 { text-align: center; color: #1D4ED8; font-size: 1.5rem; margin-top: 0; }
+    .back-bar { display: flex; justify-content: flex-start; margin-bottom: 14px; }
+    .back-btn { background: #6C757D; color: #fff; border: none; padding: 10px 18px; border-radius: 14px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 3px 0 #495057; }
+
+    /* 1. 알파벳 */
+    .grid-letters { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .letter-card { background: #fff; border: 3px solid #3A86FF; border-radius: 18px; padding: 12px 6px; text-align: center; font-size: 1.85rem; cursor: pointer; box-shadow: 0 4px 0 #2563EB; }
+    .letter-card.vowel { border-color: #FF5E5B; box-shadow: 0 4px 0 #D93835; background: #FFF5F5; }
+    .letter-sub { display: block; font-size: 0.85rem; color: #666; margin-top: 3px; }
+
+    .solo-view { background: #fff; border: 4px solid #90CAF9; border-radius: 28px; padding: 34px 20px; text-align: center; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+    .solo-big-char { font-size: 6.5rem; line-height: 1.15; color: #3A86FF; margin: 8px 0; }
+    .solo-sub { font-size: 1.6rem; color: #555; margin-bottom: 18px; }
+    .solo-art { min-height: 180px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .solo-art .word-emoji { font-size: 8.5rem; }
+    .solo-word { font-size: 3.4rem; line-height: 1.2; color: #1D4ED8; margin-bottom: 6px; }
+    .solo-meaning { font-size: 1.75rem; color: #666; margin-bottom: 22px; }
+
+    /* 2. 그림 영단어 */
+    .top-category-bar { background: #EBF5FF; border: 3px solid #90CAF9; border-radius: 22px; padding: 14px 16px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .cat-tabs { display: flex; justify-content: center; gap: 7px; flex-wrap: wrap; }
+    .cat-btn { padding: 8px 12px; border-radius: 18px; border: none; background: #E6E6E6; font-size: 0.96rem; cursor: pointer; color: #444; }
+    .cat-btn.active { background: #3A86FF; color: #fff; box-shadow: 0 3px 0 #1D4ED8; }
+    .sub-band-bar { display: none; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .sub-band-bar.show { display: flex; }
+    .sub-band-btn { padding: 7px 14px; border-radius: 14px; border: 2px solid #90CAF9; background: #fff; color: #1E3A8A; font-size: 0.95rem; cursor: pointer; }
+    .sub-band-btn.active { background: #2EC4B6; color: #fff; border-color: #1F8E83; }
+    .top-write-btn { background: #2EC4B6; color: #fff; border: none; padding: 10px 22px; border-radius: 18px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 3px 0 #1F8E83; }
+    .count-info { text-align: center; color: #555; margin-bottom: 10px; font-size: 1.05rem; }
+    .word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 14px; }
+    .word-card { background: #fff; border-radius: 20px; padding: 16px 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border: 3px solid #BFDBFE; cursor: pointer; }
+    .word-art { height: 92px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+    .word-emoji { font-size: 4.1rem; line-height: 1; }
+    .num-badge-art { width: 78px; height: 78px; border-radius: 20px; background: linear-gradient(135deg, #3A86FF, #00B4D8); color: #fff; font-size: 2.1rem; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 0 #1D4ED8; }
+    .color-swatch-art { width: 78px; height: 78px; border-radius: 22px; border: 3px solid #CBD5E1; box-shadow: 0 4px 0 rgba(0,0,0,0.12); display: flex; align-items: center; justify-content: center; font-size: 2.1rem; }
+    .word-en { font-size: 1.32rem; color: #1E3A8A; word-break: break-word; }
+    .word-ko { font-size: 0.98rem; color: #666; margin-top: 3px; word-break: keep-all; }
+
+    /* 3. 따라 쓰기 */
+    .canvas-container { background: #fff; border-radius: 24px; padding: 20px; text-align: center; box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+    .write-target-header { margin-bottom: 14px; }
+    .write-meaning-reveal { margin-top: 12px; min-height: 38px; padding: 10px 16px; border-radius: 16px; background: #ECFDF5; border: 2px solid #6EE7B7; color: #065F46; font-size: 1.35rem; display: none; }
+    #writeCanvas { width: 100%; max-width: 900px; height: auto; aspect-ratio: 900 / 450; border: 5px solid #3A86FF; border-radius: 24px; background: #fff; touch-action: none; cursor: crosshair; display: block; margin: 0 auto; }
+    .action-btn { background: #FF7A00; color: #fff; border: none; padding: 12px 20px; font-size: 1.1rem; border-radius: 16px; margin: 6px 4px; cursor: pointer; box-shadow: 0 4px 0 #C85500; }
+    .action-btn.blue { background: #3A86FF; box-shadow: 0 4px 0 #2667CC; }
+    .action-btn.green { background: #2EC4B6; box-shadow: 0 4px 0 #1F8E83; }
+    .mini-btn { padding: 8px 14px; font-size: 1.05rem; border-radius: 12px; border: 2px solid #DDD; background: #FAFAFA; cursor: pointer; }
+
+    /* 4. 영어 퀴즈 & 5. 공부방 */
+    .quiz-box { background: #fff; border-radius: 24px; padding: 25px; text-align: center; box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+    .quiz-art { height: 160px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .quiz-art .word-emoji { font-size: 7.5rem; }
+    .quiz-art .num-badge-art { width: 120px; height: 120px; font-size: 3.1rem; border-radius: 28px; }
+    .quiz-art .color-swatch-art { width: 120px; height: 120px; font-size: 3.2rem; border-radius: 30px; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+    .quiz-opt-btn { background: #F8FAFC; border: 3px solid #90CAF9; border-radius: 18px; padding: 16px 10px; font-size: 1.5rem; cursor: pointer; color: #1E3A8A; }
+    .stats-card { background: #fff; border-radius: 24px; padding: 25px; text-align: center; box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+    .sticker-board { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 20px; font-size: 2.5rem; background: #EFF6FF; padding: 20px; border-radius: 20px; min-height: 100px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>🔤 신나는 영어 놀이터</div>
+    <div class="header-right">
+      <div class="voice-wrap">
+        <select id="voiceProfileSelect" class="voice-select" onchange="changeVoiceProfile()" aria-label="목소리 선택">
+          <option value="girl">👧 여자아이 목소리</option>
+          <option value="woman">👩 여자 어른 목소리</option>
+          <option value="boy">👦 남자아이 목소리</option>
+          <option value="man">👨 남자 어른 목소리</option>
+        </select>
+        <span class="voice-status" id="voiceStatusLabel" title="현재 연결된 음성">엔진 확인 중...</span>
+      </div>
+      <div class="star-badge">⭐ 별 스티커: <span id="starCount">0</span>개</div>
+    </div>
+  </header>
+
+  <nav id="mainNav">
+    <button type="button" class="nav-btn active" onclick="showTab('tab1', this)">1. 알파벳 A~Z</button>
+    <button type="button" class="nav-btn" onclick="showTab('tab2', this)">2. 그림 영단어</button>
+    <button type="button" class="nav-btn" onclick="showTab('tab3', this)">3. 따라 쓰기</button>
+    <button type="button" class="nav-btn" onclick="showTab('tab4', this)">4. 영어 퀴즈</button>
+    <button type="button" class="nav-btn" onclick="showTab('tab5', this)">5. 나의 공부방</button>
+  </nav>
+
+  <main>
+    <!-- 1. 알파벳 A~Z -->
+    <section id="tab1" class="section active">
+      <div id="letterListView">
+        <h2>🔤 알파벳을 눌러 크게 보고 원어민 발음을 들어보세요!</h2>
+        <p style="text-align:center; color:#666; margin-top:-6px;">빨간 테두리는 모음(A, E, I, O, U)이에요!</p>
+        <div class="grid-letters" id="alphabetGrid"></div>
+      </div>
+      <div id="letterSoloView" class="solo-view" style="display:none;">
+        <div class="back-bar"><button type="button" class="back-btn" onclick="closeLetterSolo()">← 뒤로 가기</button></div>
+        <div class="solo-big-char" id="soloLetterChar">Aa</div>
+        <div class="solo-sub" id="soloLetterDesc">🍎 apple (사과)</div>
+        <button type="button" class="action-btn blue" id="soloLetterSpeakBtn">🔊 영어 발음 듣기</button>
+        <button type="button" class="action-btn green" id="soloLetterWriteBtn">✍️ 따라 쓰기</button>
+      </div>
+    </section>
+
+    <!-- 2. 그림 영단어 -->
+    <section id="tab2" class="section">
+      <div id="wordListView">
+        <h2>🖼️ 종류별 그림 영단어를 눌러 크게 보고 들어보세요!</h2>
+        <div class="top-category-bar">
+          <div class="cat-tabs">
+            <button type="button" class="cat-btn active" onclick="filterWords('all', this)">🌈 전체</button>
+            <button type="button" class="cat-btn" onclick="filterWords('num_1_10', this)">1️⃣ 숫자 1~10</button>
+            <button type="button" class="cat-btn" onclick="filterWords('num_11_20', this)">🔟 숫자 11~20</button>
+            <button type="button" class="cat-btn" onclick="filterWords('num_21_100', this)">💯 숫자 21~100</button>
+            <button type="button" class="cat-btn" onclick="filterWords('colors_all', this)">🎨 전체 색상</button>
+            <button type="button" class="cat-btn" onclick="filterWords('home', this)">🏠 집</button>
+            <button type="button" class="cat-btn" onclick="filterWords('clothes', this)">👕 의류</button>
+            <button type="button" class="cat-btn" onclick="filterWords('food', this)">🍎 음식</button>
+            <button type="button" class="cat-btn" onclick="filterWords('around', this)">☀️ 우리 주변</button>
+            <button type="button" class="cat-btn" onclick="filterWords('transport', this)">🚗 교통</button>
+            <button type="button" class="cat-btn" onclick="filterWords('job', this)">💼 직업과 사무실</button>
+            <button type="button" class="cat-btn" onclick="filterWords('hospital', this)">🏥 병원과 약품</button>
+            <button type="button" class="cat-btn" onclick="filterWords('school', this)">🏫 학교와 공부</button>
+            <button type="button" class="cat-btn" onclick="filterWords('world', this)">🌍 세계</button>
+            <button type="button" class="cat-btn" onclick="filterWords('plant_animal', this)">🐶 식물과 동물</button>
+            <button type="button" class="cat-btn" onclick="filterWords('sports', this)">⚽ 스포츠와 야외 활동</button>
+            <button type="button" class="cat-btn" onclick="filterWords('hobby', this)">🎨 취미와 여가</button>
+            <button type="button" class="cat-btn" onclick="filterWords('basic', this)">⭐ Basic words 기본 단어</button>
+          </div>
+          <button type="button" class="top-write-btn" onclick="sendToWrite(selectedWordForWrite, selectedWordKo)">
+            ✍️ <span id="topWriteLabel">one</span> 따라쓰기
+          </button>
+        </div>
+
+        <div class="sub-band-bar" id="subBand21To100">
+          <button type="button" class="sub-band-btn active" onclick="setBand21To100('all', this)">21~100 (80개)</button>
+          <button type="button" class="sub-band-btn" onclick="setBand21To100('21_40', this)">21~40</button>
+          <button type="button" class="sub-band-btn" onclick="setBand21To100('41_60', this)">41~60</button>
+          <button type="button" class="sub-band-btn" onclick="setBand21To100('61_80', this)">61~80</button>
+          <button type="button" class="sub-band-btn" onclick="setBand21To100('81_100', this)">81~100</button>
+        </div>
+
+        <div class="count-info" id="wordCountInfo"></div>
+        <div style="text-align:center; margin-bottom:14px;">
+          <input type="text" id="wordSearch" placeholder="영어 또는 한글 단어 검색" oninput="renderWords()" style="padding:10px 15px; width:85%; max-width:360px; border-radius:15px; border:2px solid #90CAF9; font-size:1rem;">
+        </div>
+        <div class="word-grid" id="wordGrid"></div>
+      </div>
+
+      <div id="wordSoloView" class="solo-view" style="display:none;">
+        <div class="back-bar"><button type="button" class="back-btn" onclick="closeWordSolo()">← 뒤로 가기</button></div>
+        <div class="solo-art" id="soloWordArt"></div>
+        <div class="solo-word" id="soloWordEn"></div>
+        <div class="solo-meaning" id="soloWordKo"></div>
+        <button type="button" class="action-btn blue" id="soloWordSpeakBtn">🔊 영어 발음 듣기</button>
+        <button type="button" class="action-btn green" id="soloWordWriteBtn">✍️ 따라 쓰기</button>
+      </div>
+    </section>
+
+    <!-- 3. 알파벳·단어 따라 쓰기 -->
+    <section id="tab3" class="section">
+      <div class="back-bar"><button type="button" class="back-btn" onclick="goBackFromWrite()">← 뒤로 가기</button></div>
+      <h2>✍️ 손가락으로 알파벳과 영단어를 따라 써보세요!</h2>
+      <div class="canvas-container">
+        <div class="write-target-header">
+          <div>
+            <span style="font-size:1.4rem;">연습 단어: </span>
+            <strong id="targetWriteWord" style="font-size:2.6rem; color:#3A86FF;">apple</strong>
+            <button type="button" class="mini-btn" onclick="speakEn(document.getElementById('targetWriteWord').innerHTML)">🔊 발음 듣기</button>
+            <button type="button" class="mini-btn" onclick="pickRandomWriteWord(true)">🎲 다른 단어</button>
+          </div>
+        </div>
+        <canvas id="writeCanvas" width="900" height="450"></canvas>
+        <div class="write-meaning-reveal" id="writeMeaningReveal"></div>
+        <div style="margin-top:12px;">
+          <button type="button" class="action-btn" onclick="clearCanvas()">🧹 지우기</button>
+          <button type="button" class="action-btn blue" onclick="showWriteMeaningNow()">📖 한글 뜻 확인</button>
+          <button type="button" class="action-btn green" onclick="completeWriting()">🎉 다 썼어요! (+별 1개)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 영어 퀴즈 -->
+    <section id="tab4" class="section">
+      <h2>🎯 그림과 영어 발음을 듣고 정답을 맞혀요!</h2>
+      <div class="quiz-box">
+        <div class="quiz-art" id="quizArt"></div>
+        <button type="button" class="action-btn blue" onclick="playQuizHint()">🔊 영어 발음 듣기</button>
+        <div class="quiz-options" id="quizOptions"></div>
+        <p id="quizFeedback" style="font-size:1.4rem; margin-top:15px; min-height:30px;"></p>
+      </div>
+    </section>
+
+    <!-- 5. 나의 공부방 -->
+    <section id="tab5" class="section">
+      <h2>🏆 나의 영어 공부방</h2>
+      <div class="stats-card">
+        <h3>우리 아이 칭찬 스티커 판</h3>
+        <div style="font-size:1.3rem; margin:10px 0;">
+          ✍️ 따라 쓴 단어 수: <strong id="writtenCount">0</strong>개 |
+          🎯 맞힌 퀴즈 수: <strong id="quizScore">0</strong>개
+        </div>
+        <div class="sticker-board" id="stickerBoard"></div>
+        <button type="button" class="action-btn" style="margin-top:20px; background:#888888; box-shadow:none;" onclick="resetProgress()">기록 초기화</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    var memoryStore = { stars: 0, written: 0, quiz: 0, stickers: [] };
+    var progress = loadProgress();
+    var voiceProfile = 'girl';
+    var previousTabId = 'tab2';
+    var cachedVoices = [];
+
+    var voiceConfigs = {
+      girl: { label: '여자아이', rate: 0.92, pitch: 1.55, keywords: ['samantha', 'victoria', 'zira', 'jenny', 'aria', 'female', 'woman'] },
+      woman: { label: '여자 어른', rate: 0.88, pitch: 1.05, keywords: ['samantha', 'ava', 'jenny', 'aria', 'female', 'woman'] },
+      boy: { label: '남자아이', rate: 0.92, pitch: 1.25, keywords: ['alex', 'daniel', 'david', 'guy', 'male', 'man'] },
+      man: { label: '남자 어른', rate: 0.82, pitch: 0.72, keywords: ['daniel', 'alex', 'david', 'guy', 'male', 'man'] }
+    };
+
+    function getEnglishVoices() {
+      var list = [];
+      for (var i = 0; i < cachedVoices.length; i++) {
+        var v = cachedVoices[i];
+        if (v.lang && v.lang.toLowerCase().indexOf('en') === 0) list.push(v);
+      }
+      return list;
+    }
+
+    function refreshVoices() {
+      try {
+        if ('speechSynthesis' in window) {
+          cachedVoices = window.speechSynthesis.getVoices() || [];
+          updateVoiceStatusLabel();
+        }
+      } catch (e) {}
+    }
+
+    function updateVoiceStatusLabel() {
+      var el = document.getElementById('voiceStatusLabel');
+      if (!el) return;
+      var enVoices = getEnglishVoices();
+      var chosen = pickBestEnglishVoice(voiceProfile);
+      var cfg = voiceConfigs[voiceProfile] || voiceConfigs.girl;
+      if (!('speechSynthesis' in window)) {
+        el.innerHTML = '음성 미지원 브라우저';
+        return;
+      }
+      if (enVoices.length === 0) {
+        el.innerHTML = '영어 음성 0개 · 톤조절(' + cfg.label + ')';
+      } else {
+        el.innerHTML = '영어 ' + enVoices.length + '개 · ' + (chosen ? chosen.name : enVoices[0].name);
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      refreshVoices();
+      window.speechSynthesis.onvoiceschanged = refreshVoices;
+    }
+
+    function pickBestEnglishVoice(profileKey) {
+      var enVoices = getEnglishVoices();
+      if (enVoices.length === 0) return null;
+      var cfg = voiceConfigs[profileKey] || voiceConfigs.girl;
+      for (var k = 0; k < cfg.keywords.length; k++) {
+        var kw = cfg.keywords[k];
+        for (var j = 0; j < enVoices.length; j++) {
+          var vn = (enVoices[j].name || '').toLowerCase();
+          if (vn.indexOf(kw) !== -1) return enVoices[j];
+        }
+      }
+      return enVoices[0];
+    }
+
+    function changeVoiceProfile() {
+      var sel = document.getElementById('voiceProfileSelect');
+      voiceProfile = sel ? sel.value : 'girl';
+      updateVoiceStatusLabel();
+      speakEn('Hello! Let us learn English together!');
+    }
+
+    function loadProgress() {
+      try {
+        var raw = window.localStorage.getItem('englishPlaygroundV6');
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      return memoryStore;
+    }
+
+    function saveProgress() {
+      memoryStore = progress;
+      try { window.localStorage.setItem('englishPlaygroundV6', JSON.stringify(progress)); } catch (e) {}
+    }
+
+    function playChime(ok) {
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        var ctx = new AC();
+        var freqs = ok ? [523.25, 659.25, 783.99, 1046.5] : [330, 261.63];
+        for (var i = 0; i < freqs.length; i++) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freqs[i];
+          var t = ctx.currentTime + i * 0.09;
+          gain.gain.setValueAtTime(0.14, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.25);
+        }
+      } catch (e) {}
+    }
+
+    function speakEn(text) {
+      try {
+        if (!('speechSynthesis' in window)) return;
+        refreshVoices();
+        window.speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        var chosen = pickBestEnglishVoice(voiceProfile);
+        if (chosen) u.voice = chosen;
+        var cfg = voiceConfigs[voiceProfile] || voiceConfigs.girl;
+        u.rate = cfg.rate;
+        u.pitch = cfg.pitch;
+        setTimeout(function() {
+          try { window.speechSynthesis.speak(u); } catch (err) {}
+        }, 30);
+      } catch (e) {}
+    }
+
+    /* ================= 1. 알파벳 A~Z ================= */
+    var alphabetData = [
+      { up: 'A', low: 'a', word: 'apple', ko: '사과', emoji: '🍎', vowel: true },
+      { up: 'B', low: 'b', word: 'bear', ko: '곰', emoji: '🐻', vowel: false },
+      { up: 'C', low: 'c', word: 'cat', ko: '고양이', emoji: '🐱', vowel: false },
+      { up: 'D', low: 'd', word: 'dog', ko: '강아지', emoji: '🐶', vowel: false },
+      { up: 'E', low: 'e', word: 'egg', ko: '달걀', emoji: '🥚', vowel: true },
+      { up: 'F', low: 'f', word: 'fish', ko: '물고기', emoji: '🐟', vowel: false },
+      { up: 'G', low: 'g', word: 'grape', ko: '포도', emoji: '🍇', vowel: false },
+      { up: 'H', low: 'h', word: 'hat', ko: '모자', emoji: '🧢', vowel: false },
+      { up: 'I', low: 'i', word: 'ice cream', ko: '아이스크림', emoji: '🍦', vowel: true },
+      { up: 'J', low: 'j', word: 'juice', ko: '주스', emoji: '🧃', vowel: false },
+      { up: 'K', low: 'k', word: 'king', ko: '왕', emoji: '👑', vowel: false },
+      { up: 'L', low: 'l', word: 'lion', ko: '사자', emoji: '🦁', vowel: false },
+      { up: 'M', low: 'm', word: 'monkey', ko: '원숭이', emoji: '🐵', vowel: false },
+      { up: 'N', low: 'n', word: 'nose', ko: '코', emoji: '👃', vowel: false },
+      { up: 'O', low: 'o', word: 'orange', ko: '오렌지', emoji: '🍊', vowel: true },
+      { up: 'P', low: 'p', word: 'pig', ko: '돼지', emoji: '🐷', vowel: false },
+      { up: 'Q', low: 'q', word: 'queen', ko: '여왕', emoji: '👸', vowel: false },
+      { up: 'R', low: 'r', word: 'rabbit', ko: '토끼', emoji: '🐰', vowel: false },
+      { up: 'S', low: 's', word: 'sun', ko: '해', emoji: '☀️', vowel: false },
+      { up: 'T', low: 't', word: 'tiger', ko: '호랑이', emoji: '🐯', vowel: false },
+      { up: 'U', low: 'u', word: 'umbrella', ko: '우산', emoji: '☂️', vowel: true },
+      { up: 'V', low: 'v', word: 'violin', ko: '바이올린', emoji: '🎻', vowel: false },
+      { up: 'W', low: 'w', word: 'whale', ko: '고래', emoji: '🐳', vowel: false },
+      { up: 'X', low: 'x', word: 'box', ko: '상자', emoji: '📦', vowel: false },
+      { up: 'Y', low: 'y', word: 'yoyo', ko: '요요', emoji: '🪀', vowel: false },
+      { up: 'Z', low: 'z', word: 'zebra', ko: '얼룩말', emoji: '🦓', vowel: false }
+    ];
+
+    var meaningLookup = {};
+
+    function openLetterSolo(item) {
+      document.getElementById('letterListView').style.display = 'none';
+      document.getElementById('letterSoloView').style.display = 'block';
+      document.getElementById('soloLetterChar').innerHTML = item.up + item.low;
+      document.getElementById('soloLetterDesc').innerHTML = item.emoji + ' ' + item.word + ' (' + item.ko + ')';
+      document.getElementById('soloLetterSpeakBtn').onclick = function() { speakEn(item.up + ', ' + item.word); };
+      document.getElementById('soloLetterWriteBtn').onclick = function() {
+        previousTabId = 'tab1';
+        sendToWrite(item.up + item.low, '알파벳 ' + item.up + item.low + ' (' + item.word + ' · ' + item.ko + ')');
+      };
+      speakEn(item.up + ', ' + item.word);
+    }
+
+    function closeLetterSolo() {
+      document.getElementById('letterSoloView').style.display = 'none';
+      document.getElementById('letterListView').style.display = 'block';
+    }
+
+    function initAlphabet() {
+      var grid = document.getElementById('alphabetGrid');
+      grid.innerHTML = '';
+      for (var i = 0; i < alphabetData.length; i++) {
+        (function(it) {
+          var card = document.createElement('div');
+          card.className = 'letter-card' + (it.vowel ? ' vowel' : '');
+          card.innerHTML = it.up + it.low + '<span class="letter-sub">' + it.emoji + ' ' + it.word + '</span>';
+          card.onclick = function() { openLetterSolo(it); };
+          grid.appendChild(card);
+        })(alphabetData[i]);
+      }
+    }
+
+    /* ================= 2. 그림 영단어 ================= */
+    var categoryLabels = {
+      all: '전체',
+      num_1_10: '숫자 1~10',
+      num_11_20: '숫자 11~20',
+      num_21_100: '숫자 21~100',
+      colors_all: '전체 색상',
+      home: '집',
+      clothes: '의류',
+      food: '음식',
+      around: '우리 주변',
+      transport: '교통',
+      job: '직업과 사무실',
+      hospital: '병원과 약품',
+      school: '학교와 공부',
+      world: '세계',
+      plant_animal: '식물과 동물',
+      sports: '스포츠와 야외 활동',
+      hobby: '취미와 여가',
+      basic: 'Basic words 기본 단어'
+    };
+
+    var numberWordsMap = {
+      1: ['one', '하나 (1)'], 2: ['two', '둘 (2)'], 3: ['three', '셋 (3)'], 4: ['four', '넷 (4)'], 5: ['five', '다섯 (5)'],
+      6: ['six', '여섯 (6)'], 7: ['seven', '일곱 (7)'], 8: ['eight', '여덟 (8)'], 9: ['nine', '아홉 (9)'], 10: ['ten', '열 (10)'],
+      11: ['eleven', '열하나 (11)'], 12: ['twelve', '열둘 (12)'], 13: ['thirteen', '열셋 (13)'], 14: ['fourteen', '열넷 (14)'], 15: ['fifteen', '열다섯 (15)'],
+      16: ['sixteen', '열여섯 (16)'], 17: ['seventeen', '열일곱 (17)'], 18: ['eighteen', '열여덟 (18)'], 19: ['nineteen', '열아홉 (19)'], 20: ['twenty', '스물 (20)'],
+      21: ['twenty-one', '스물하나 (21)'], 22: ['twenty-two', '스물둘 (22)'], 23: ['twenty-three', '스물셋 (23)'], 24: ['twenty-four', '스물넷 (24)'], 25: ['twenty-five', '스물다섯 (25)'],
+      26: ['twenty-six', '스물여섯 (26)'], 27: ['twenty-seven', '스물일곱 (27)'], 28: ['twenty-eight', '스물여덟 (28)'], 29: ['twenty-nine', '스물아홉 (29)'], 30: ['thirty', '서른 (30)'],
+      31: ['thirty-one', '서른하나 (31)'], 32: ['thirty-two', '서른둘 (32)'], 33: ['thirty-three', '서른셋 (33)'], 34: ['thirty-four', '서른넷 (34)'], 35: ['thirty-five', '서른다섯 (35)'],
+      36: ['thirty-six', '서른여섯 (36)'], 37: ['thirty-seven', '서른일곱 (37)'], 38: ['thirty-eight', '서른여덟 (38)'], 39: ['thirty-nine', '서른아홉 (39)'], 40: ['forty', '마흔 (40)'],
+      41: ['forty-one', '마흔하나 (41)'], 42: ['forty-two', '마흔둘 (42)'], 43: ['forty-three', '마흔셋 (43)'], 44: ['forty-four', '마흔넷 (44)'], 45: ['forty-five', '마흔다섯 (45)'],
+      46: ['forty-six', '마흔여섯 (46)'], 47: ['forty-seven', '마흔일곱 (47)'], 48: ['forty-eight', '마흔여덟 (48)'], 49: ['forty-nine', '마흔아홉 (49)'], 50: ['fifty', '쉰 (50)'],
+      51: ['fifty-one', '쉰하나 (51)'], 52: ['fifty-two', '쉰둘 (52)'], 53: ['fifty-three', '쉰셋 (53)'], 54: ['fifty-four', '쉰넷 (54)'], 55: ['fifty-five', '쉰다섯 (55)'],
+      56: ['fifty-six', '쉰여섯 (56)'], 57: ['fifty-seven', '쉰일곱 (57)'], 58: ['fifty-eight', '쉰여덟 (58)'], 59: ['fifty-nine', '쉰아홉 (59)'], 60: ['sixty', '예순 (60)'],
+      61: ['sixty-one', '예순하나 (61)'], 62: ['sixty-two', '예순둘 (62)'], 63: ['sixty-three', '예순셋 (63)'], 64: ['sixty-four', '예순넷 (64)'], 65: ['sixty-five', '예순다섯 (65)'],
+      66: ['sixty-six', '예순여섯 (66)'], 67: ['sixty-seven', '예순일곱 (67)'], 68: ['sixty-eight', '예순여덟 (68)'], 69: ['sixty-nine', '예순아홉 (69)'], 70: ['seventy', '일흔 (70)'],
+      71: ['seventy-one', '일흔하나 (71)'], 72: ['seventy-two', '일흔둘 (72)'], 73: ['seventy-three', '일흔셋 (73)'], 74: ['seventy-four', '일흔넷 (74)'], 75: ['seventy-five', '일흔다섯 (75)'],
+      76: ['seventy-six', '일흔여섯 (76)'], 77: ['seventy-seven', '일흔일곱 (77)'], 78: ['seventy-eight', '일흔여덟 (78)'], 79: ['seventy-nine', '일흔아홉 (79)'], 80: ['eighty', '여든 (80)'],
+      81: ['eighty-one', '여든하나 (81)'], 82: ['eighty-two', '여든둘 (82)'], 83: ['eighty-three', '여든셋 (83)'], 84: ['eighty-four', '여든넷 (84)'], 85: ['eighty-five', '여든다섯 (85)'],
+      86: ['eighty-six', '여든여섯 (86)'], 87: ['eighty-seven', '여든일곱 (87)'], 88: ['eighty-eight', '여든여덟 (88)'], 89: ['eighty-nine', '여든아홉 (89)'], 90: ['ninety', '아흔 (90)'],
+      91: ['ninety-one', '아흔하나 (91)'], 92: ['ninety-two', '아흔둘 (92)'], 93: ['ninety-three', '아흔셋 (93)'], 94: ['ninety-four', '아흔넷 (94)'], 95: ['ninety-five', '아흔다섯 (95)'],
+      96: ['ninety-six', '아흔여섯 (96)'], 97: ['ninety-seven', '아흔일곱 (97)'], 98: ['ninety-eight', '아흔여덟 (98)'], 99: ['ninety-nine', '아흔아홉 (99)'], 100: ['one hundred', '백 (100)']
+    };
+
+    var baseColors = [
+      ['red', '빨강', '#EF4444', '❤️'], ['orange', '주황', '#F97316', '🧡'], ['yellow', '노랑', '#EAB308', '💛'],
+      ['green', '초록', '#22C55E', '💚'], ['blue', '파랑', '#3B82F6', '💙'], ['indigo', '남색', '#4F46E5', '🔷'],
+      ['purple', '보라', '#9333EA', '💜'], ['violet', '제비꽃색', '#A855F7', '🪻'], ['pink', '분홍', '#EC4899', '🩷'],
+      ['magenta', '자홍색', '#DB2777', '🌺'], ['crimson', '진홍색', '#DC2626', '🌹'], ['scarlet', '선홍색', '#E11D48', '🍎'],
+      ['coral', '산호색', '#FB7185', '🪸'], ['salmon', '연어색', '#FDA4AF', '🍣'], ['peach', '복숭아색', '#FDBA74', '🍑'],
+      ['apricot', '살구색', '#FB923C', '🧡'], ['gold', '금색', '#F59E0B', '👑'], ['amber', '호박색', '#D97706', '🍯'],
+      ['lemon', '레몬색', '#FACC15', '🍋'], ['lime', '라임색', '#84CC16', '🍏'], ['olive', '올리브색', '#65A30D', '🫒'],
+      ['mint', '민트색', '#34D399', '🌿'], ['turquoise', '청록색', '#2DD4BF', '🩵'], ['teal', '암청록색', '#0D9488', '🦚'],
+      ['cyan', '하늘청색', '#06B6D4', '💎'], ['sky blue', '하늘색', '#38BDF8', '🌤️'], ['navy', '곤색·네이비', '#1E3A8A', '🌌'],
+      ['royal blue', '로열블루', '#2563EB', '🔷'], ['lavender', '라벤더색', '#C084FC', '🪻'], ['plum', '자두색', '#7E22CE', '🫐'],
+      ['brown', '갈색', '#92400E', '🤎'], ['tan', '황갈색', '#B45309', '🥖'], ['beige', '베이지색', '#E7D8C9', '🧋'],
+      ['cream', '크림색', '#FEF3C7', '🍦'], ['ivory', '상아색', '#FFFBEB', '🤍'], ['khaki', '카키색', '#A3A380', '🪖'],
+      ['maroon', '적갈색', '#7F1D1D', '🍷'], ['burgundy', '버건디색', '#881337', '🍇'], ['bronze', '청동색', '#A16207', '🥉'],
+      ['silver', '은색', '#CBD5E1', '🥈'], ['gray', '회색', '#9CA3AF', '🩶'], ['charcoal', '짙은회색', '#4B5563', '🪨'],
+      ['black', '검정', '#1F2937', '🖤'], ['white', '하양', '#FFFFFF', '🤍']
+    ];
+
+    var colorShades = [
+      ['light ', '연한 ', '#FDE68A', '✨'],
+      ['dark ', '진한 ', '#334155', '🌑'],
+      ['bright ', '밝은 ', '#38BDF8', '☀️']
+    ];
+
+    var seedCategories = {
+      home: [
+        ['house', '집', '🏠'], ['home', '우리 집', '🏡'], ['door', '문', '🚪'], ['window', '창문', '🪟'],
+        ['bed', '침대', '🛏️'], ['chair', '의자', '🪑'], ['sofa', '소파', '🛋️'], ['table', '식탁·탁자', '🍽️'],
+        ['desk', '책상', '🗄️'], ['lamp', '전등·램프', '💡'], ['key', '열쇠', '🔑'], ['bathtub', '욕조', '🛁'],
+        ['soap', '비누', '🧼'], ['broom', '빗자루', '🧹'], ['clock', '시계', '⏰'], ['mirror', '거울', '🪞'],
+        ['pillow', '베개', '🛌'], ['blanket', '이불·담요', '🧶'], ['curtain', '커튼', '🪟'], ['stairs', '계단', '🪜'],
+        ['roof', '지붕', '🏚️'], ['garden', '마당·정원', '🌻'], ['fence', '울타리', '🚧'], ['kitchen', '부엌', '🍳'],
+        ['bathroom', '욕실', '🚿'], ['bedroom', '침실', '🛌'], ['living room', '거실', '🛋️'], ['cup', '컵', '🥤'],
+        ['bowl', '그릇', '🥣'], ['plate', '접시', '🍽️'], ['spoon', '숟가락', '🥄'], ['fork', '포크', '🍴'],
+        ['knife', '칼', '🔪'], ['pot', '냄비', '🍲'], ['pan', '프라이팬', '🍳'], ['kettle', '주전자', '🫖'],
+        ['teapot', '찻주전자', '🍵'], ['fridge', '냉장고', '🧊'], ['oven', '오븐', '🔥'], ['washer', '세탁기', '🧺'],
+        ['towel', '수건', '🧻'], ['toothbrush', '칫솔', '🪥'], ['toothpaste', '치약', '🧴'], ['comb', '빗', '🪮'],
+        ['slippers', '실내화', '🥿'], ['trash can', '쓰레기통', '🗑️'], ['candle', '양초', '🕯️'], ['picture frame', '액자', '🖼️'],
+        ['bookshelf', '책장', '📚'], ['wardrobe', '옷장', '🚪'], ['sink', '싱크대', '🚰'], ['faucet', '수도꼭지', '🚰'],
+        ['mug', '머그컵', '☕'], ['tray', '쟁반', '🍽️'], ['chopsticks', '젓가락', '🥢'], ['napkin', '냅킨', '🧻'],
+        ['hanger', '옷걸이', '👔'], ['laundry basket', '빨래바구니', '🧺'], ['iron', '다리미', '♨️'], ['vacuum', '청소기', '🧹'],
+        ['fan', '선풍기', '🌀'], ['heater', '난로·히터', '🔥'], ['air conditioner', '에어컨', '❄️'], ['remote', '리모컨', '📺'],
+        ['television', '텔레비전', '📺'], ['speaker', '스피커', '🔊'], ['balcony', '베란다', '🌿'], ['gate', '대문', '⛩️'],
+        ['chimney', '굴뚝', '🏠'], ['carpet', '카펫', '🧶'], ['cushion', '쿠션', '🛋️'], ['drawer', '서랍', '🗄️'],
+        ['cabinet', '찬장·수납장', '🗄️'], ['hallway', '복도', '🚶'], ['doorbell', '초인종', '🔔'], ['lock', '자물쇠', '🔒'],
+        ['lightbulb', '전구', '💡'], ['flashlight', '손전등', '🔦'], ['vase', '꽃병', '🏺'], ['watering can', '물뿌리개', '🚿'],
+        ['garage', '차고', '🚗'], ['attic', '다락방', '🏠'], ['floor', '바닥', '⬜'], ['wall', '벽', '🧱']
+      ],
+      clothes: [
+        ['hat', '모자', '🧢'], ['cap', '야구모자', '🧢'], ['t-shirt', '티셔츠', '👕'], ['shirt', '셔츠', '👔'],
+        ['pants', '바지', '👖'], ['jeans', '청바지', '👖'], ['shorts', '반바지', '🩳'], ['skirt', '치마', '👗'],
+        ['dress', '드레스·원피스', '👗'], ['coat', '코트·외투', '🧥'], ['jacket', '재킷·점퍼', '🧥'], ['sweater', '스웨터', '🧶'],
+        ['cardigan', '가디건', '🧥'], ['socks', '양말', '🧦'], ['gloves', '장갑', '🧤'], ['mittens', '벙어리장갑', '🧤'],
+        ['scarf', '목도리·스카프', '🧣'], ['shoes', '신발', '👟'], ['sneakers', '운동화', '👟'], ['boots', '부츠·장화', '🥾'],
+        ['sandals', '샌들', '👡'], ['heels', '구두', '👠'], ['glasses', '안경', '👓'], ['sunglasses', '선글라스', '🕶️'],
+        ['crown', '왕관', '👑'], ['ring', '반지', '💍'], ['bag', '가방', '👜'], ['purse', '핸드백', '👛'],
+        ['belt', '벨트', '🎗️'], ['tie', '넥타이', '👔'], ['bow tie', '나비넥타이', '🎀'], ['ribbon', '리본', '🎀'],
+        ['button', '단추', '🔘'], ['zipper', '지퍼', '🧷'], ['pajamas', '잠옷', '🛌'], ['apron', '앞치마', '🥼'],
+        ['uniform', '교복·제복', '🧥'], ['raincoat', '우비', '🌧️'], ['vest', '조끼', '🦺'], ['hoodie', '후드티', '👕'],
+        ['beanie', '비니 모자', '🧢'], ['beret', '베레모', '👒'], ['sunhat', '챙모자', '👒'], ['blouse', '블라우스', '👚'],
+        ['polo shirt', '카라티', '👕'], ['tank top', '민소매', '🎽'], ['suit', '정장·양복', '🤵'], ['tuxedo', '턱시도', '🤵'],
+        ['kimono', '전통옷', '👘'], ['robe', '가운·로브', '🧥'], ['leggings', '레깅스', '👖'], ['tights', '스타킹', '🧦'],
+        ['trousers', '긴바지', '👖'], ['overalls', '멜빵바지', '👖'], ['rain boots', '장화', '🥾'], ['snow boots', '방한부츠', '🥾'],
+        ['loafers', '로퍼', '👞'], ['slippers', '실내화', '🥿'], ['flip flops', '쪼리·슬리퍼', '🩴'], ['earmuffs', '귀마개', '🎧'],
+        ['headband', '머리띠', '🎀'], ['hairpin', '머리핀', '📌'], ['necklace', '목걸이', '📿'], ['bracelet', '팔찌', '⭕'],
+        ['watch', '손목시계', '⌚'], ['pocket', '주머니', '🧥'], ['collar', '옷깃', '👔'], ['sleeve', '소매', '👕'],
+        ['thread', '실', '🧵'], ['needle', '바늘', '🪡'], ['wool', '양모·울', '🐑'], ['cotton', '면·코튼', '☁️'],
+        ['silk', '비단·실크', '✨'], ['leather', '가죽', '👜'], ['swimsuit', '수영복', '🩱'], ['bikini', '비키니', '👙'],
+        ['wetsuit', '잠수복', '🏊'], ['cape', '망토', '🦸'], ['poncho', '판초', '🧥'], ['muffler', '머플러', '🧣'],
+        ['goggles', '고글', '🥽']
+      ],
+      food: [
+        ['apple', '사과', '🍎'], ['green apple', '청사과', '🍏'], ['banana', '바나나', '🍌'], ['grape', '포도', '🍇'],
+        ['strawberry', '딸기', '🍓'], ['watermelon', '수박', '🍉'], ['orange', '오렌지', '🍊'], ['lemon', '레몬', '🍋'],
+        ['peach', '복숭아', '🍑'], ['pear', '배', '🍐'], ['cherry', '체리', '🍒'], ['pineapple', '파인애플', '🍍'],
+        ['kiwi', '키위', '🥝'], ['mango', '망고', '🥭'], ['melon', '멜론', '🍈'], ['coconut', '코코넛', '🥥'],
+        ['carrot', '당근', '🥕'], ['corn', '옥수수', '🌽'], ['tomato', '토마토', '🍅'], ['potato', '감자', '🥔'],
+        ['cucumber', '오이', '🥒'], ['broccoli', '브로콜리', '🥦'], ['onion', '양파', '🧅'], ['garlic', '마늘', '🧄'],
+        ['mushroom', '버섯', '🍄'], ['pepper', '고추·피망', '🌶️'], ['bread', '빵', '🍞'], ['toast', '토스트', '🍞'],
+        ['cake', '케이크', '🍰'], ['cupcake', '컵케이크', '🧁'], ['cookie', '쿠키', '🍪'], ['donut', '도넛', '🍩'],
+        ['ice cream', '아이스크림', '🍦'], ['chocolate', '초콜릿', '🍫'], ['candy', '사탕', '🍬'], ['lollipop', '막대사탕', '🍭'],
+        ['milk', '우유', '🥛'], ['juice', '주스', '🧃'], ['water', '물', '💧'], ['tea', '차', '🍵'],
+        ['pizza', '피자', '🍕'], ['hamburger', '햄버거', '🍔'], ['sandwich', '샌드위치', '🥪'], ['egg', '달걀', '🥚'],
+        ['cheese', '치즈', '🧀'], ['butter', '버터', '🧈'], ['rice', '밥·쌀', '🍚'], ['soup', '수프', '🍲'],
+        ['noodles', '국수·면', '🍜'], ['honey', '꿀', '🍯'], ['jam', '잼', '🫙'], ['popcorn', '팝콘', '🍿'],
+        ['avocado', '아보카도', '🥑'], ['blueberry', '블루베리', '🫐'], ['raspberry', '산딸기', '🍓'], ['plum', '자두', '🫐'],
+        ['fig', '무화과', '🍇'], ['lime', '라임', '🍈'], ['grapefruit', '자몽', '🍊'], ['pomegranate', '석류', '🍎'],
+        ['cabbage', '양배추', '🥬'], ['lettuce', '상추', '🥬'], ['spinach', '시금치', '🥬'], ['pumpkin', '호박', '🎃'],
+        ['sweet potato', '고구마', '🍠'], ['radish', '무', '🥕'], ['pea', '완두콩', '🫛'], ['bean', '콩', '🫘'],
+        ['steak', '스테이크', '🥩'], ['chicken wing', '치킨·닭고기', '🍗'], ['bacon', '베이컨', '🥓'], ['sausage', '소시지', '🌭'],
+        ['hot dog', '핫도그', '🌭'], ['french fries', '감자튀김', '🍟'], ['taco', '타코', '🌮'], ['burrito', '부리토', '🌯'],
+        ['dumpling', '만두', '🥟'], ['sushi', '초밥', '🍣'], ['bento', '도시락', '🍱'], ['curry', '카레', '🍛'],
+        ['spaghetti', '스파게티', '🍝'], ['pancake', '팬케이크', '🥞'], ['waffle', '와플', '🧇'], ['croissant', '크루아상', '🥐'],
+        ['bagel', '베이글', '🥯'], ['pretzel', '프레첼', '🥨'], ['pie', '파이', '🥧'], ['pudding', '푸딩', '🍮'],
+        ['yogurt', '요구르트', '🥛'], ['coffee', '커피', '☕'], ['cocoa', '코코아', '☕'], ['lemonade', '레모네이드', '🍋'],
+        ['salt', '소금', '🧂'], ['sugar', '설탕', '🍬'], ['vinegar', '식초', '🫙'], ['soy sauce', '간장', '🫙']
+      ],
+      around: [
+        ['sun', '해·태양', '☀️'], ['moon', '달', '🌙'], ['full moon', '보름달', '🌕'], ['star', '별', '⭐'],
+        ['cloud', '구름', '☁️'], ['rain', '비', '🌧️'], ['snow', '눈', '❄️'], ['snowman', '눈사람', '⛄'],
+        ['rainbow', '무지개', '🌈'], ['wind', '바람', '💨'], ['fire', '불', '🔥'], ['sky', '하늘', '🌤️'],
+        ['night sky', '밤하늘', '🌃'], ['park', '공원', '🏞️'], ['street', '거리·길', '🛤️'], ['umbrella', '우산', '☂️'],
+        ['bench', '벤치', '🪑'], ['lamp post', '가로등', '🏮'], ['traffic light', '신호등', '🚦'], ['crosswalk', '횡단보도', '🚶'],
+        ['mailbox', '우체통', '📮'], ['fountain', '분수', '⛲'], ['bridge', '다리', '🌉'], ['building', '건물', '🏢'],
+        ['store', '가게·상점', '🏪'], ['market', '시장', '🛒'], ['bank', '은행', '🏦'], ['post office', '우체국', '🏤'],
+        ['library', '도서관', '📚'], ['museum', '박물관', '🏛️'], ['zoo', '동물원', '🦁'], ['playground', '놀이터', '🛝'],
+        ['slide', '미끄럼틀', '🛝'], ['swing', '그네', '🪁'], ['puddle', '물웅덩이', '💧'], ['shadow', '그림자', '🌑'],
+        ['breeze', '산들바람', '🍃'], ['thunder', '천둥', '⚡'], ['lightning', '번개', '⚡'], ['fog', '안개', '🌫️'],
+        ['sunrise', '일출·아침해', '🌅'], ['sunset', '일몰·노을', '🌇'], ['shooting star', '별똥별', '🌠'], ['crescent moon', '초승달', '🌙'],
+        ['ice', '얼음', '🧊'], ['frost', '서리', '❄️'], ['snowflake', '눈송이', '❄️'], ['raindrop', '빗방울', '💧'],
+        ['sidewalk', '인도·보도', '🚶'], ['alley', '골목길', '🏘️'], ['crossroad', '사거리', '🚦'], ['signboard', '간판', '🪧'],
+        ['hydrant', '소화전', '🚒'], ['trash bin', '쓰레기통', '🗑️'], ['recycling bin', '분리수거함', '♻️'], ['bus stop', '버스정류장', '🚏'],
+        ['bakery', '빵집', '🥐'], ['cafe', '카페', '☕'], ['flower shop', '꽃집', '💐'], ['bookstore', '서점', '📖'],
+        ['toy store', '장난감가게', '🧸'], ['supermarket', '슈퍼마켓', '🛒'], ['apartment', '아파트', '🏢'], ['tower', '전망대·탑', '🗼'],
+        ['clock tower', '시계탑', '🕰️'], ['statue', '동상·조각상', '🗽'], ['pond', '연못', '🪷'], ['brook', '개울·시내', '💧'],
+        ['meadow', '초원', '🌾'], ['bush', '덤불', '🌿'], ['acorn', '도토리', '🌰'], ['pinecone', '솔방울', '🌲'],
+        ['petal', '꽃잎', '🌸'], ['dew', '이슬', '💧'], ['horizon', '수평선·지평선', '🌅'], ['spark', '불꽃', '✨'],
+        ['smoke', '연기', '💨'], ['steam', '김·수증기', '♨️'], ['echo', '메아리', '🔊']
+      ],
+      transport: [
+        ['car', '자동차', '🚗'], ['bus', '버스', '🚌'], ['school bus', '통학버스', '🚌'], ['taxi', '택시', '🚕'],
+        ['train', '기차', '🚂'], ['high-speed train', '고속열차', '🚄'], ['subway', '지하철', '🚇'], ['tram', '트램·전차', '🚊'],
+        ['airplane', '비행기', '✈️'], ['helicopter', '헬리콥터', '🚁'], ['ship', '배·선박', '🚢'], ['boat', '보트', '⛵'],
+        ['sailboat', '돛단배', '⛵'], ['canoe', '카누', '🛶'], ['ferry', '여객선', '⛴️'], ['bicycle', '자전거', '🚲'],
+        ['motorcycle', '오토바이', '🏍️'], ['scooter', '스쿠터', '🛵'], ['truck', '트럭', '🚚'], ['pickup truck', '픽업트럭', '🛻'],
+        ['tractor', '트랙터', '🚜'], ['rocket', '로켓', '🚀'], ['ufo', '비행접시', '🛸'], ['fire truck', '소방차', '🚒'],
+        ['police car', '경찰차', '🚓'], ['ambulance', '구급차', '🚑'], ['van', '승합차', '🚐'], ['cable car', '케이블카', '🚡'],
+        ['station', '역·정거장', '🚉'], ['airport', '공항', '🛫'], ['harbor', '항구', '⚓'], ['ticket', '표·티켓', '🎫'],
+        ['wheel', '바퀴', '🛞'], ['helmet', '헬멧', '🪖'], ['road', '도로', '🛣️'], ['map', '지도', '🗺️'],
+        ['crosswalk', '횡단보도', '🚶'], ['intersection', '교차로', '🚦'], ['roundabout', '회전교차로', '🔄'],
+        ['locomotive', '기관차', '🚂'], ['monorail', '모노레일', '🚝'], ['bullet train', '신칸센·고속열차', '🚅'], ['yacht', '요트', '🛥️'],
+        ['speed boat', '모터보트', '🚤'], ['submarine', '잠수함', '🚢'], ['kayak', '카약', '🛶'], ['raft', '뗏목', '🪵'],
+        ['gondola', '곤돌라', '🛶'], ['jet', '제트기', '🛩️'], ['glider', '글라이더', '🪂'], ['parachute', '낙하산', '🪂'],
+        ['hot air balloon', '열기구', '🎈'], ['spaceship', '우주선', '🚀'], ['rover', '탐사차', '🛸'], ['dump truck', '덤프트럭', '🚚'],
+        ['tow truck', '견인차', '🚛'], ['cement mixer', '레미콘', '🚛'], ['crane', '크레인', '🏗️'], ['forklift', '지게차', '🚜'],
+        ['rickshaw', '인력거', '🛺'], ['sledge', '썰매', '🛷'], ['sled', '눈썰매', '🛷'], ['skate', '스케이트', '🛼'],
+        ['anchor', '닻', '⚓'], ['compass', '나침반', '🧭'], ['radar', '레이더', '📡'], ['runway', '활주로', '🛫'],
+        ['platform', '승강장', '🚉'], ['pier', '선착장·부두', '⚓'], ['highway', '고속도로', '🛣️'], ['tunnel', '터널', '🚇'],
+        ['overpass', '고가도로', '🌉'], ['steering wheel', '핸들', '🛞'], ['seatbelt', '안전벨트', '🔒'], ['horn', '경적', '📯'],
+        ['siren', '사이렌', '🚨'], ['headlight', '전조등', '💡'], ['license plate', '번호판', '🚗']
+      ],
+      job: [
+        ['teacher', '선생님', '👩‍🏫'], ['doctor', '의사', '👨‍⚕️'], ['nurse', '간호사', '👩‍⚕️'], ['firefighter', '소방관', '👨‍🚒'],
+        ['police officer', '경찰관', '👮'], ['cook', '요리사·셰프', '👨‍🍳'], ['baker', '제빵사', '🥐'], ['farmer', '농부', '👨‍🌾'],
+        ['artist', '화가·예술가', '👨‍🎨'], ['singer', '가수', '👩‍🎤'], ['musician', '음악가', '🎸'], ['dancer', '무용수', '💃'],
+        ['astronaut', '우주비행사', '👨‍🚀'], ['scientist', '과학자', '🧑‍🔬'], ['pilot', '조종사', '👨‍✈️'], ['driver', '운전기사', '🚖'],
+        ['engineer', '기술자·엔지니어', '👷'], ['builder', '건축가·작업자', '🏗️'], ['judge', '판사', '⚖️'], ['lawyer', '변호사', '💼'],
+        ['office', '사무실', '🏢'], ['computer', '컴퓨터', '💻'], ['laptop', '노트북', '💻'], ['keyboard', '키보드', '⌨️'],
+        ['mouse', '컴퓨터 마우스', '🖱️'], ['printer', '프린터', '🖨️'], ['phone', '전화기', '☎️'], ['smartphone', '스마트폰', '📱'],
+        ['desk', '사무용 책상', '🗄️'], ['chair', '사무용 의자', '💺'], ['folder', '서류철', '📁'], ['file', '파일', '📄'],
+        ['envelope', '편지봉투', '✉️'], ['stamp', '우표', '🏷️'], ['calendar', '달력', '📅'], ['calculator', '계산기', '🧮'],
+        ['dentist', '치과의사', '🦷'], ['pharmacist', '약사', '💊'], ['veterinarian', '수의사', '🐾'], ['photographer', '사진작가', '📷'],
+        ['reporter', '기자', '🎙️'], ['writer', '작가', '✍️'], ['actor', '배우', '🎭'], ['magician', '마술사', '🎩'],
+        ['clown', '광대', '🤡'], ['athlete', '운동선수', '🏅'], ['coach', '코치·감독', '📣'], ['gardener', '정원사', '🌱'],
+        ['fisherman', '어부', '🎣'], ['sailor', '선원', '⚓'], ['captain', '선장·기장', '👨‍✈️'], ['librarian', '사서', '📚'],
+        ['architect', '건축설계사', '📐'], ['chemist', '화학자', '🧪'], ['botanist', '식물학자', '🌿'], ['astronomer', '천문학자', '🔭'],
+        ['programmer', '프로그래머', '💻'], ['designer', '디자이너', '🎨'], ['manager', '관리자·매니저', '📊'], ['secretary', '비서·사무직원', '📋'],
+        ['stapler', '스테이플러', '📎'], ['highlighter', '형광펜', '🖍️'], ['clip', '집게·클립', '📎'], ['binder', '바인더', '📂'],
+        ['memo', '메모지', '📝'], ['notepad', '메모장', '📒'], ['badge', '사원증·배지', '🪪'], ['briefcase', '서류가방', '💼'],
+        ['meeting', '회의실', '👥'], ['projector', '프로젝터', '📽️'], ['screen', '모니터·화면', '🖥️'], ['cable', '케이블·전선', '🔌'],
+        ['outlet', '콘센트', '🔌'], ['shredder', '문서세단기', '📄'], ['fax', '팩스', '📠'], ['telephone', '사무실 전화', '📞']
+      ],
+      hospital: [
+        ['hospital', '병원', '🏥'], ['clinic', '의원·진료실', '🩺'], ['pharmacy', '약국', '💊'], ['medicine', '약·알약', '💊'],
+        ['capsule', '캡슐약', '💊'], ['syrup', '시럽약', '🧴'], ['bandage', '반창고', '🩹'], ['gauze', '거즈', '🧻'],
+        ['thermometer', '온도계·체온계', '🌡️'], ['syringe', '주사기', '💉'], ['stethoscope', '청진기', '🩺'], ['tooth', '치아·이빨', '🦷'],
+        ['dentist', '치과의사', '🦷'], ['mask', '마스크', '😷'], ['drop', '물약·방울', '💧'], ['eye drops', '안약', '👁️'],
+        ['rest', '휴식', '🛋️'], ['sleep', '잠·수면', '😴'], ['heart', '건강·심장', '❤️'], ['pulse', '맥박', '💓'],
+        ['microscope', '현미경', '🔬'], ['crutch', '목발', '🩼'], ['wheelchair', '휠체어', '♿'], ['ointment', '연고', '🧴'],
+        ['tissue', '휴지·티슈', '🧻'], ['soap', '손씻기 비누', '🧼'], ['sanitizer', '손소독제', '🧴'], ['pill box', '약상자', '📦'],
+        ['checkup', '건강검진', '📋'], ['bandage roll', '붕대', '🩹'], ['ice pack', '얼음찜질팩', '🧊'], ['recovery', '회복·응원', '💪'],
+        ['ambulance', '구급차', '🚑'], ['patient', '환자', '🛌'], ['doctor', '의사', '👨‍⚕️'], ['nurse', '간호사', '👩‍⚕️'],
+        ['tablet', '정제약', '💊'], ['vitamin', '비타민', '🍊'], ['cough syrup', '기침약', '🧴'], ['painkiller', '진통제', '💊'],
+        ['allergy pill', '알레르기약', '💊'], ['band-aid', '일회용 밴드', '🩹'], ['splint', '부목', '🦴'], ['cast', '깁스', '🦴'],
+        ['xray', '엑스레이', '🩻'], ['scan', '초음파·스캔', '🖥️'], ['blood test', '혈액검사', '🩸'], ['vaccine', '예방접종·백신', '💉'],
+        ['shot', '주사', '💉'], ['iv drip', '링거·수액', '💧'], ['bedpan', '병상', '🛏️'], ['ward', '병동', '🏥'],
+        ['emergency room', '응급실', '🚨'], ['waiting room', '대기실', '🪑'], ['prescription', '처방전', '📄'], ['label', '복약안내 라벨', '🏷️'],
+        ['cotton ball', '솜뭉치', '☁️'], ['swab', '면봉', '🩹'], ['tweezer', '핀셋', '🔧'], ['scissors', '의료가위', '✂️'],
+        ['gloves', '위생장갑', '🧤'], ['gown', '진료가운', '🥼'], ['cap', '위생모', '🧢'], ['shield', '보호막', '🛡️'],
+        ['fever', '열·발열', '🌡️'], ['cold', '감기', '🤧'], ['cough', '기침', '😷'], ['sneeze', '재채기', '🤧'],
+        ['ache', '통증', '😣'], ['headache', '두통', '🤕'], ['toothache', '치통', '🦷'], ['stomachache', '복통', '🤢'],
+        ['wound', '상처', '🩹'], ['bruise', '멍', '🟣'], ['burn', '화상', '🔥'], ['healing', '치유', '💚']
+      ],
+      school: [
+        ['school', '학교', '🏫'], ['classroom', '교실', '🧑‍🏫'], ['book', '책', '📚'], ['storybook', '동화책', '📖'],
+        ['dictionary', '사전', '📕'], ['pencil', '연필', '✏️'], ['colored pencil', '색연필', '🖍️'], ['pen', '펜', '🖊️'],
+        ['marker', '마커·사인펜', '🖍️'], ['eraser', '지우개', '🧽'], ['ruler', '자', '📏'], ['scissors', '가위', '✂️'],
+        ['glue', '풀·접착제', '🧴'], ['tape', '테이프', '📎'], ['paperclip', '클립', '📎'], ['backpack', '책가방', '🎒'],
+        ['notebook', '공책·노트', '📓'], ['crayon', '크레용', '🖍️'], ['paintbrush', '붓', '🖌️'], ['palette', '팔레트', '🎨'],
+        ['paper', '종이', '📄'], ['blackboard', '칠판', '🖤'], ['chalk', '분필', '🤍'], ['globe', '지구본', '🌍'],
+        ['bell', '학교 종', '🔔'], ['homework', '숙제', '📝'], ['test', '시험·퀴즈', '💯'], ['graduation', '졸업', '🎓'],
+        ['teacher', '선생님', '👩‍🏫'], ['student', '학생', '🎒'], ['desk', '책상', '🗄️'], ['chair', '의자', '🪑'],
+        ['whiteboard', '화이트보드', '⬜'], ['duster', '칠판지우개', '🧽'], ['stapler', '스테이플러', '📎'], ['hole punch', '펀치', '📎'],
+        ['folder', '학습파일', '📁'], ['binder', '공책바인더', '📂'], ['worksheet', '학습지', '📄'], ['report card', '성적표·알림장', '📋'],
+        ['timetable', '시간표', '📅'], ['locker', '사물함', '🗄️'], ['gymnasium', '체육관', '🏀'], ['cafeteria', '급식실', '🍽️'],
+        ['art room', '미술실', '🎨'], ['music room', '음악실', '🎵'], ['science lab', '과학실', '🔬'], ['playground', '운동장', '⚽'],
+        ['reading', '읽기', '📖'], ['writing', '쓰기', '✍️'], ['math', '수학', '🔢'], ['science', '과학', '🧪'],
+        ['art', '미술', '🎨'], ['music', '음악', '🎼'], ['history', '역사', '🏛️'], ['geography', '지리', '🗺️'],
+        ['english', '영어', '🔤'], ['korean', '국어', '🇰🇷'], ['question', '질문', '❓'], ['answer', '정답·대답', '⭕'],
+        ['star', '칭찬 별', '⭐'], ['trophy', '상장·트로피', '🏆'], ['certificate', '수료증', '📜'], ['backpack strap', '가방끈', '🎒'],
+        ['pencil case', '필통', '✏️'], ['sharpener', '연필깎이', '✏️'], ['compass', '컴퍼스·나침반', '🧭'], ['protractor', '각도기', '📐']
+      ],
+      world: [
+        ['world', '세계', '🌍'], ['earth', '지구', '🌎'], ['planet', '행성', '🪐'], ['mountain', '산', '⛰️'],
+        ['snow mountain', '설산', '🏔️'], ['sea', '바다', '🌊'], ['ocean', '대양', '🌊'], ['river', '강', '🏞️'],
+        ['lake', '호수', '🏞️'], ['waterfall', '폭포', '🌊'], ['island', '섬', '🏝️'], ['desert', '사막', '🏜️'],
+        ['volcano', '화산', '🌋'], ['beach', '해변', '🏖️'], ['forest', '숲', '🌲'], ['jungle', '정글', '🌴'],
+        ['valley', '계곡', '🏔️'], ['cave', '동굴', '🕳️'], ['castle', '성', '🏰'], ['palace', '궁전', '🏯'],
+        ['tower', '탑', '🗼'], ['bridge', '다리', '🌉'], ['flag', '깃발', '🚩'], ['world flag', '국기', '🏳️'],
+        ['map', '지도', '🗺️'], ['compass', '나침반', '🧭'], ['continent', '대륙', '🌏'], ['country', '나라·국가', '🌐'],
+        ['city', '도시', '🏙️'], ['village', '마을', '🏘️'], ['culture', '문화', '🎭'], ['travel', '여행', '🧳'],
+        ['asia', '아시아', '🌏'], ['europe', '유럽', '🌍'], ['africa', '아프리카', '🌍'], ['america', '아메리카', '🌎'],
+        ['australia', '오스트레일리아', '🌏'], ['antarctica', '남극', '❄️'], ['arctic', '북극', '🐻‍❄️'], ['equator', '적도', '🌐'],
+        ['glacier', '빙하', '🏔️'], ['canyon', '협곡', '🏜️'], ['cliff', '절벽', '⛰️'], ['reef', '산호초', '🪸'],
+        ['bay', '만·해만', '🌊'], ['peninsula', '반도', '🗺️'], ['archipelago', '군도·제도', '🏝️'], ['oasis', '오아시스', '🌴'],
+        ['savanna', '사바나', '🦁'], ['tundra', '툰드라', '❄️'], ['rainforest', '열대우림', '🌴'], ['meadow', '목초지', '🌿'],
+        ['pyramid', '피라미드', '🔺'], ['temple', '사원·신전', '⛩️'], ['monument', '기념비', '🏛️'], ['harbor', '항구도시', '⚓'],
+        ['port', '항만', '🚢'], ['border', '국경', '🚩'], ['capital', '수도', '🏙️'], ['landmark', '랜드마크', '🗼'],
+        ['passport', '여권', '🛂'], ['luggage', '여행가방', '🧳'], ['souvenir', '기념품', '🎁'], ['postcard', '엽서', '✉️'],
+        ['voyage', '항해', '⛵'], ['expedition', '탐험', '🧭'], ['hemisphere', '반구', '🌐'], ['climate', '기후', '🌤️']
+      ],
+      plant_animal: [
+        ['dog', '강아지', '🐶'], ['puppy', '새끼 강아지', '🐕'], ['cat', '고양이', '🐱'], ['kitten', '새끼 고양이', '🐈'],
+        ['rabbit', '토끼', '🐰'], ['bear', '곰', '🐻'], ['panda', '판다', '🐼'], ['polar bear', '북극곰', '🐻‍❄️'],
+        ['lion', '사자', '🦁'], ['tiger', '호랑이', '🐯'], ['elephant', '코끼리', '🐘'], ['monkey', '원숭이', '🐵'],
+        ['gorilla', '고릴라', '🦍'], ['fox', '여우', '🦊'], ['wolf', '늑대', '🐺'], ['deer', '사슴', '🦌'],
+        ['horse', '말', '🐴'], ['zebra', '얼룩말', '🦓'], ['cow', '소', '🐮'], ['pig', '돼지', '🐷'],
+        ['sheep', '양', '🐑'], ['goat', '염소', '🐐'], ['chicken', '닭', '🐔'], ['chick', '병아리', '🐤'],
+        ['duck', '오리', '🦆'], ['swan', '백조', '🦢'], ['owl', '부엉이', '🦉'], ['eagle', '독수리', '🦅'],
+        ['bird', '새', '🐦'], ['penguin', '펭귄', '🐧'], ['whale', '고래', '🐳'], ['dolphin', '돌고래', '🐬'],
+        ['shark', '상어', '🦈'], ['octopus', '문어', '🐙'], ['crab', '게', '🦀'], ['fish', '물고기', '🐟'],
+        ['frog', '개구리', '🐸'], ['turtle', '거북이', '🐢'], ['snake', '뱀', '🐍'], ['crocodile', '악어', '🐊'],
+        ['butterfly', '나비', '🦋'], ['bee', '꿀벌', '🐝'], ['ladybug', '무당벌레', '🐞'], ['ant', '개미', '🐜'],
+        ['snail', '달팽이', '🐌'], ['flower', '꽃', '🌸'], ['rose', '장미', '🌹'], ['tulip', '튤립', '🌷'],
+        ['sunflower', '해바라기', '🌻'], ['blossom', '꽃봉오리·벚꽃', '🌼'], ['tree', '나무', '🌳'], ['pine tree', '소나무', '🌲'],
+        ['palm tree', '야자수', '🌴'], ['leaf', '나뭇잎', '🍃'], ['herb', '새싹·풀잎', '🌿'], ['cactus', '선인장', '🌵'],
+        ['seedling', '묘목·식물', '🌱'], ['acorn', '도토리', '🌰'], ['squirrel', '다람쥐', '🐿️'], ['hedgehog', '고슴도치', '🦔'],
+        ['koala', '코알라', '🐨'], ['kangaroo', '캥거루', '🦘'], ['camel', '낙타', '🐪'], ['giraffe', '기린', '🦒'],
+        ['hippo', '하마', '🦛'], ['rhino', '코뿔소', '🦏'], ['bat', '박쥐', '🦇'], ['mouse', '생쥐', '🐭'],
+        ['hamster', '햄스터', '🐹'], ['parrot', '앵무새', '🦜'], ['peacock', '공작', '🦚'], ['flamingo', '플라밍고', '🦩'],
+        ['seal', '물개', '🦭'], ['jellyfish', '해파리', '🪼'], ['starfish', '불가사리', '⭐'], ['lobster', '바닷가재', '🦞'],
+        ['shrimp', '새우', '🦐'], ['spider', '거미', '🕷️'], ['dragonfly', '잠자리', '🪲'], ['beetle', '딱정벌레', '🪲'],
+        ['worm', '지렁이', '🪱'], ['daisy', '데이지꽃', '🌼'], ['lotus', '연꽃', '🪷'], ['clover', '클로버·세잎클로버', '☘️'],
+        ['bamboo', '대나무', '🎋'], ['fern', '고사리', '🌿'], ['moss', '이끼', '🌱'], ['mushroom', '버섯', '🍄'],
+        ['vine', '덩굴', '🌿'], ['root', '뿌리', '🌱'], ['branch', '나뭇가지', '🪵'], ['trunk', '나무줄기', '🪵']
+      ],
+      sports: [
+        ['ball', '공', '⚽'], ['soccer', '축구', '⚽'], ['basketball', '농구', '🏀'], ['baseball', '야구', '⚾'],
+        ['tennis', '테니스', '🎾'], ['volleyball', '배구', '🏐'], ['rugby', '럭비', '🏉'], ['golf', '골프', '⛳'],
+        ['ping pong', '탁구', '🏓'], ['badminton', '배드민턴', '🏸'], ['bowling', '볼링', '🎳'], ['billiards', '당구', '🎱'],
+        ['run', '달리기', '🏃'], ['jog', '조깅', '🏃'], ['walk', '걷기', '🚶'], ['hike', '등산·하이킹', '🥾'],
+        ['climb', '암벽등반', '🧗'], ['swim', '수영', '🏊'], ['surf', '서핑', '🏄'], ['row', '노젓기', '🚣'],
+        ['jump', '점프·뛰기', '🤸'], ['gymnastics', '체조', '🤸'], ['skate', '스케이트보드', '🛹'], ['ice skate', '스케이트', '⛸️'],
+        ['ski', '스키', '⛷️'], ['snowboard', '스노보드', '🏂'], ['camping', '캠핑', '🏕️'], ['tent', '텐트', '⛺'],
+        ['campfire', '모닥불', '🔥'], ['fishing', '낚시', '🎣'], ['backpack', '야외 배낭', '🎒'], ['flashlight', '손전등', '🔦'],
+        ['trophy', '트로피', '🏆'], ['medal', '금메달', '🥇'], ['silver medal', '은메달', '🥈'], ['bronze medal', '동메달', '🥉'],
+        ['archery', '양궁', '🏹'], ['fencing', '펜싱', '🤺'], ['boxing', '복싱', '🥊'], ['karate', '무술·가라데', '🥋'],
+        ['judo', '유도', '🥋'], ['yoga', '요가', '🧘'], ['stretch', '스트레칭', '🤸'], ['sprint', '단거리 달리기', '🏃'],
+        ['relay', '계주·이어달리기', '🏃'], ['hurdle', '허들', '🏃'], ['high jump', '높이뛰기', '🤸'], ['long jump', '멀리뛰기', '🤸'],
+        ['diving', '다이빙', '🏊'], ['kayaking', '카약 타기', '🛶'], ['sailing', '요트 타기', '⛵'], ['cycling', '자전거 타기', '🚴'],
+        ['rollerskate', '롤러스케이트', '🛼'], ['sledding', '썰매 타기', '🛷'], ['picnic', '소풍·피크닉', '🧺'], ['barbecue', '바비큐', '🍖'],
+        ['bonfire', '캠프파이어', '🔥'], ['lantern', '랜턴·등불', '🏮'], ['sleeping bag', '침낭', '🛏️'], ['mat', '요가매트', '🧘'],
+        ['racket', '라켓', '🎾'], ['bat', '야구배트', '🏏'], ['glove', '야구글러브', '🧤'], ['helmet', '보호헬멧', '🪖'],
+        ['whistle', '호루라기', '📣'], ['scoreboard', '점수판', '🔢'], ['stadium', '경기장', '🏟️'], ['track', '트랙', '🏃'],
+        ['finish line', '결승선', '🏁'], ['checkered flag', '체커기', '🏁'], ['team', '팀', '👥'], ['victory', '승리·우승', '🏆']
+      ],
+      hobby: [
+        ['music', '음악', '🎵'], ['song', '노래', '🎶'], ['piano', '피아노', '🎹'], ['guitar', '기타', '🎸'],
+        ['violin', '바이올린', '🎻'], ['drum', '드럼·북', '🥁'], ['trumpet', '트럼펫', '🎺'], ['saxophone', '색소폰', '🎷'],
+        ['dance', '춤', '💃'], ['picture', '그림', '🖼️'], ['drawing', '드로잉', '✏️'], ['painting', '채색·미술', '🎨'],
+        ['puzzle', '퍼즐', '🧩'], ['game', '게임', '🎮'], ['chess', '체스', '♟️'], ['cards', '카드놀이', '🃏'],
+        ['balloon', '풍선', '🎈'], ['party', '파티', '🎉'], ['gift', '선물', '🎁'], ['doll', '인형', '🧸'],
+        ['teddy bear', '곰인형', '🧸'], ['yoyo', '요요', '🪀'], ['camera', '카메라', '📷'], ['video camera', '비디오카메라', '📹'],
+        ['movie', '영화', '🎬'], ['theater', '공연·연극', '🎭'], ['kite', '연날리기', '🪁'], ['reading', '독서', '📖'],
+        ['origami', '종이접기', '🦢'], ['craft', '만들기', '✂️'], ['sticker', '스티커', '⭐'], ['bubble', '비눗방울', '🫧'],
+        ['flute', '플루트', '🎶'], ['harp', '하프', '🎵'], ['cello', '첼로', '🎻'], ['accordion', '아코디언', '🎹'],
+        ['xylophone', '실로폰', '🥁'], ['maracas', '마라카스', '🪇'], ['microphone', '마이크', '🎤'], ['headphones', '헤드폰', '🎧'],
+        ['earphones', '이어폰', '🎧'], ['radio', '라디오', '📻'], ['concert', '콘서트', '🎶'], ['ballet', '발레', '🩰'],
+        ['sketchbook', '스케치북', '📓'], ['canvas', '캔버스', '🖼️'], ['clay', '점토·찰흙', '🏺'], ['bead', '구슬·비즈', '📿'],
+        ['blocks', '블록놀이', '🧱'], ['train set', '기차놀이', '🚂'], ['board game', '보드게임', '🎲'], ['dice', '주사위', '🎲'],
+        ['domino', '도미노', '🁣'], ['bingo', '빙고', '🔢'], ['magic', '마술', '🪄'], ['costume', '분장·의상', '🎭'],
+        ['stage', '무대', '🎭'], ['spotlight', '스포트라이트', '💡'], ['applause', '박수', '👏'], ['encore', '앵콜', '🎉'],
+        ['comic', '만화책', '📚'], ['magazine', '잡지', '📰'], ['diary', '일기장', '📔'], ['album', '사진첩', '🖼️'],
+        ['binoculars', '쌍안경', '🔭'], ['telescope', '망원경', '🔭'], ['starlight', '별빛', '✨'], ['melody', '멜로디', '🎵']
+      ],
+      basic: [
+        ['hello', '안녕', '👋'], ['hi', '안녕 (친근한)', '🙋'], ['goodbye', '안녕히 가세요', '👋'], ['please', '제발·부탁해요', '🙏'],
+        ['thank you', '고마워요', '💖'], ['sorry', '미안해요', '🙇'], ['yes', '네·맞아', '⭕'], ['no', '아니요', '❌'],
+        ['good', '좋아요', '👍'], ['great', '훌륭해요', '🌟'], ['nice', '멋져요', '😊'], ['happy', '행복한', '😄'],
+        ['sad', '슬픈', '😢'], ['angry', '화난', '😠'], ['excited', '신난', '🤩'], ['tired', '피곤한', '😪'],
+        ['love', '사랑', '❤️'], ['like', '좋아하다', '💕'], ['big', '큰', '🐘'], ['small', '작은', '🐜'],
+        ['tall', '키가 큰', '🦒'], ['short', '짧은·키가 작은', '🐥'], ['long', '긴', '🐍'], ['fast', '빠른', '🐆'],
+        ['slow', '느린', '🐢'], ['hot', '뜨거운', '☀️'], ['cold', '차가운', '❄️'], ['warm', '따뜻한', '☕'],
+        ['cool', '시원한·멋진', '😎'], ['new', '새로운', '✨'], ['old', '오래된', '🕰️'], ['open', '열다·열린', '📂'],
+        ['close', '닫다·닫힌', '📁'], ['up', '위', '⬆️'], ['down', '아래', '⬇️'], ['left', '왼쪽', '⬅️'],
+        ['right', '오른쪽', '➡️'], ['in', '안에', '📥'], ['out', '밖에', '📤'], ['on', '위에', '🔛'],
+        ['under', '아래에', '⬇️'], ['day', '낮·하루', '🌞'], ['night', '밤', '🌛'], ['morning', '아침', '🌅'],
+        ['evening', '저녁', '🌆'], ['today', '오늘', '📅'], ['tomorrow', '내일', '⏭️'], ['friend', '친구', '🤝'],
+        ['family', '가족', '👨‍👩‍👧‍👦'], ['baby', '아기', '👶'], ['boy', '남자아이', '👦'], ['girl', '여자아이', '👧'],
+        ['welcome', '환영해요', '🙌'], ['okay', '괜찮아요', '👌'], ['help', '도와주세요', '🆘'], ['stop', '멈춰요', '🛑'],
+        ['go', '가요', '🟢'], ['come', '와요', '👋'], ['look', '봐요', '👀'], ['listen', '들어요', '👂'],
+        ['speak', '말해요', '🗣️'], ['read', '읽어요', '📖'], ['write', '써요', '✍️'], ['play', '놀아요', '🎈'],
+        ['eat', '먹어요', '🍽️'], ['drink', '마셔요', '🥤'], ['sleep', '자요', '😴'], ['wake up', '일어나요', '⏰'],
+        ['sit', '앉아요', '🪑'], ['stand', '서요', '🧍'], ['walk', '걸어요', '🚶'], ['run', '달려요', '🏃'],
+        ['jump', '뛰어요', '🤸'], ['smile', '웃어요', '😊'], ['laugh', '크게 웃어요', '😂'], ['cry', '울어요', '😭'],
+        ['clean', '깨끗한', '✨'], ['dirty', '더러운', '🫧'], ['full', '가득 찬', '🈵'], ['empty', '빈', '🫙'],
+        ['heavy', '무거운', '🏋️'], ['light', '가벼운', '🪶'], ['soft', '부드러운', '☁️'], ['hard', '단단한', '🪨'],
+        ['sweet', '달콤한', '🍯'], ['sour', '신', '🍋'], ['loud', '시끄러운', '🔊'], ['quiet', '조용한', '🤫'],
+        ['early', '일찍', '🌅'], ['late', '늦은', '⏰'], ['again', '다시', '🔁'], ['together', '함께', '🤝']
+      ]
+    };
+
+    function buildWordDatabase() {
+      var list = [];
+      var seen = {};
+
+      function pushItem(cat, en, ko, kind, extra) {
+        var cleanEn = String(en).replace(/^\s+|\s+$/g, '');
+        if (!cleanEn || /^my\b/i.test(cleanEn)) return;
+        var key = cat + '::' + cleanEn.toLowerCase();
+        if (seen[key]) return;
+        seen[key] = true;
+        list.push({ cat: cat, en: cleanEn, ko: ko, kind: kind, extra: extra });
+        var baseKey = cleanEn.toLowerCase();
+        if (!meaningLookup[baseKey]) meaningLookup[baseKey] = ko;
+      }
+
+      for (var n1 = 1; n1 <= 10; n1++) {
+        pushItem('num_1_10', numberWordsMap[n1][0], numberWordsMap[n1][1], 'num', String(n1));
+      }
+
+      for (var n2 = 11; n2 <= 20; n2++) {
+        pushItem('num_11_20', numberWordsMap[n2][0], numberWordsMap[n2][1], 'num', String(n2));
+      }
+
+      for (var n3 = 21; n3 <= 100; n3++) {
+        pushItem('num_21_100', numberWordsMap[n3][0], numberWordsMap[n3][1], 'num', String(n3));
+      }
+
+      for (var c = 0; c < baseColors.length; c++) {
+        pushItem('colors_all', baseColors[c][0], baseColors[c][1], 'color', { hex: baseColors[c][2], icon: baseColors[c][3] });
+      }
+      for (var s = 0; s < colorShades.length; s++) {
+        for (var c2 = 0; c2 < baseColors.length; c2++) {
+          if (list.filter(function(x) { return x.cat === 'colors_all'; }).length >= 100) break;
+          pushItem(
+            'colors_all',
+            colorShades[s][0] + baseColors[c2][0],
+            colorShades[s][1] + baseColors[c2][1],
+            'color',
+            { hex: baseColors[c2][2], icon: colorShades[s][3] }
+          );
+        }
+      }
+
+      var catKeys = Object.keys(seedCategories);
+      for (var ck = 0; ck < catKeys.length; ck++) {
+        var cname = catKeys[ck];
+        var seeds = seedCategories[cname];
+        for (var i = 0; i < seeds.length; i++) {
+          pushItem(cname, seeds[i][0], seeds[i][1], 'emoji', seeds[i][2]);
+        }
+      }
+
+      return list;
+    }
+
+    function renderArtHTML(item) {
+      if (item.kind === 'num') {
+        return '<div class="num-badge-art">' + item.extra + '</div>';
+      }
+      if (item.kind === 'color') {
+        var cObj = item.extra || { hex: '#3B82F6', icon: '🎨' };
+        var borderStyle = (cObj.hex.toUpperCase() === '#FFFFFF' || cObj.hex.toUpperCase() === '#FFFBEB') ? 'border-color:#94A3B8;' : '';
+        return '<div class="color-swatch-art" style="background:' + cObj.hex + ';' + borderStyle + '">' + cObj.icon + '</div>';
+      }
+      return '<div class="word-emoji">' + item.extra + '</div>';
+    }
+
+    var wordDatabase = buildWordDatabase();
+    var currentCategory = 'all';
+    var band21To100 = 'all';
+    var selectedWordForWrite = 'one';
+    var selectedWordKo = '하나 (1)';
+
+    function filterWords(cat, btn) {
+      currentCategory = cat;
+      band21To100 = 'all';
+      var btns = document.querySelectorAll('.cat-btn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+      if (btn) btn.classList.add('active');
+
+      var bandBar = document.getElementById('subBand21To100');
+      if (cat === 'num_21_100') {
+        bandBar.classList.add('show');
+        var bBtns = bandBar.querySelectorAll('.sub-band-btn');
+        for (var b = 0; b < bBtns.length; b++) bBtns[b].classList.toggle('active', b === 0);
+      } else {
+        bandBar.classList.remove('show');
+      }
+
+      closeWordSolo();
+      renderWords();
+    }
+
+    function setBand21To100(bandKey, btn) {
+      band21To100 = bandKey;
+      var bBtns = document.querySelectorAll('#subBand21To100 .sub-band-btn');
+      for (var i = 0; i < bBtns.length; i++) bBtns[i].classList.remove('active');
+      if (btn) btn.classList.add('active');
+      renderWords();
+    }
+
+    function openWordSolo(item) {
+      selectedWordForWrite = item.en;
+      selectedWordKo = item.ko;
+      document.getElementById('topWriteLabel').innerHTML = item.en;
+      document.getElementById('wordListView').style.display = 'none';
+      document.getElementById('wordSoloView').style.display = 'block';
+      document.getElementById('soloWordArt').innerHTML = renderArtHTML(item);
+      document.getElementById('soloWordEn').innerHTML = item.en;
+      document.getElementById('soloWordKo').innerHTML = item.ko;
+      document.getElementById('soloWordSpeakBtn').onclick = function() { speakEn(item.en); };
+      document.getElementById('soloWordWriteBtn').onclick = function() { previousTabId = 'tab2'; sendToWrite(item.en, item.ko); };
+      speakEn(item.en);
+    }
+
+    function closeWordSolo() {
+      document.getElementById('wordSoloView').style.display = 'none';
+      document.getElementById('wordListView').style.display = 'block';
+    }
+
+    function matchNumberBand(item) {
+      if (currentCategory !== 'num_21_100' || band21To100 === 'all') return true;
+      var m = item.ko.match(/\((\d+)\)/);
+      if (!m) return false;
+      var num = parseInt(m[1], 10);
+      if (band21To100 === '21_40') return num >= 21 && num <= 40;
+      if (band21To100 === '41_60') return num >= 41 && num <= 60;
+      if (band21To100 === '61_80') return num >= 61 && num <= 80;
+      if (band21To100 === '81_100') return num >= 81 && num <= 100;
+      return true;
+    }
+
+    function renderWords() {
+      var grid = document.getElementById('wordGrid');
+      var kw = (document.getElementById('wordSearch').value || '').toLowerCase().replace(/^\s+|\s+$/g, '');
+      grid.innerHTML = '';
+      var filtered = [];
+      for (var i = 0; i < wordDatabase.length; i++) {
+        var it = wordDatabase[i];
+        var catOk = (currentCategory === 'all' || it.cat === currentCategory);
+        var bandOk = matchNumberBand(it);
+        var kwOk = (kw === '' || it.en.toLowerCase().indexOf(kw) !== -1 || it.ko.indexOf(kw) !== -1);
+        if (catOk && bandOk && kwOk) filtered.push(it);
+      }
+      var catTitle = categoryLabels[currentCategory] || '전체';
+      document.getElementById('wordCountInfo').innerHTML = catTitle + ': ' + filtered.length + '개 단어';
+      if (filtered.length > 0) {
+        selectedWordForWrite = filtered[0].en;
+        selectedWordKo = filtered[0].ko;
+        document.getElementById('topWriteLabel').innerHTML = filtered[0].en;
+      } else {
+        selectedWordForWrite = '';
+        selectedWordKo = '';
+        document.getElementById('topWriteLabel').innerHTML = '단어';
+      }
+      for (var j = 0; j < filtered.length; j++) {
+        (function(item) {
+          var card = document.createElement('div');
+          card.className = 'word-card';
+          card.innerHTML =
+            '<div class="word-art">' + renderArtHTML(item) + '</div>' +
+            '<div class="word-en">' + item.en + '</div>' +
+            '<div class="word-ko">' + item.ko + '</div>';
+          card.onclick = function() { openWordSolo(item); };
+          grid.appendChild(card);
+        })(filtered[j]);
+      }
+    }
+
+    /* ================= 3. 따라 쓰기 ================= */
+    var canvas = document.getElementById('writeCanvas');
+    var ctx = canvas.getContext('2d');
+    var isDrawing = false;
+    var currentWriteMeaning = '사과';
+    var hasDrawnStroke = false;
+
+    function resolveKoreanMeaning(word, explicitKo) {
+      if (explicitKo) return explicitKo;
+      var low = (word || '').toLowerCase();
+      if (meaningLookup[low]) return meaningLookup[low];
+      for (var i = 0; i < wordDatabase.length; i++) {
+        if (wordDatabase[i].en.toLowerCase() === low) return wordDatabase[i].ko;
+      }
+      return '영어 단어';
+    }
+
+    function setWriteMeaningUI(word, ko) {
+      currentWriteMeaning = resolveKoreanMeaning(word, ko);
+      var rev = document.getElementById('writeMeaningReveal');
+      rev.style.display = 'none';
+      rev.innerHTML = '';
+    }
+
+    function showWriteMeaningNow() {
+      var word = document.getElementById('targetWriteWord').innerHTML;
+      var rev = document.getElementById('writeMeaningReveal');
+      rev.style.display = 'block';
+      rev.innerHTML = '💡 <strong>' + word + '</strong>의 한글 뜻은 <strong>"' + currentWriteMeaning + '"</strong>이에요!';
+    }
+
+    function drawGuideText(word) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (!word) return;
+      ctx.save();
+      ctx.fillStyle = '#E2E8F0';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      var baseSize = (word.length <= 3) ? 340 : ((word.length <= 7) ? 240 : 165);
+      ctx.font = 'bold ' + baseSize + 'px Jua, sans-serif';
+      var maxWidth = canvas.width - 70;
+      var measured = ctx.measureText(word).width;
+      if (measured > maxWidth) {
+        baseSize = Math.floor(baseSize * (maxWidth / measured));
+        ctx.font = 'bold ' + baseSize + 'px Jua, sans-serif';
+      }
+      ctx.fillText(word, canvas.width / 2, canvas.height / 2 + 10);
+      ctx.restore();
+    }
+
+    function clearCanvas() {
+      hasDrawnStroke = false;
+      drawGuideText(document.getElementById('targetWriteWord').innerHTML);
+      var rev = document.getElementById('writeMeaningReveal');
+      rev.style.display = 'none';
+      rev.innerHTML = '';
+    }
+
+    function pickRandomWriteWord(shouldSpeak) {
+      var cur = document.getElementById('targetWriteWord').innerHTML;
+      var pool = [];
+      for (var i = 0; i < wordDatabase.length; i++) {
+        if (wordDatabase[i].en !== cur) pool.push(wordDatabase[i]);
+      }
+      var nextObj = pool[Math.floor(Math.random() * pool.length)];
+      document.getElementById('targetWriteWord').innerHTML = nextObj.en;
+      setWriteMeaningUI(nextObj.en, nextObj.ko);
+      clearCanvas();
+      if (shouldSpeak) speakEn(nextObj.en);
+    }
+
+    function sendToWrite(word, ko) {
+      if (!word) return;
+      document.getElementById('targetWriteWord').innerHTML = word;
+      setWriteMeaningUI(word, ko);
+      showTab('tab3', document.querySelectorAll('#mainNav .nav-btn')[2]);
+      clearCanvas();
+      speakEn(word);
+    }
+
+    function goBackFromWrite() {
+      var idx = (previousTabId === 'tab1') ? 0 : 1;
+      showTab(previousTabId, document.querySelectorAll('#mainNav .nav-btn')[idx]);
+    }
+
+    function getPos(e) {
+      var r = canvas.getBoundingClientRect();
+      var cx = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      var cy = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+      return { x: (cx - r.left) * (canvas.width / r.width), y: (cy - r.top) * (canvas.height / r.height) };
+    }
+
+    function startDraw(e) {
+      isDrawing = true;
+      hasDrawnStroke = true;
+      var p = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineWidth = 24;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#3A86FF';
+    }
+
+    function moveDraw(e) {
+      if (!isDrawing) return;
+      if (e.cancelable) e.preventDefault();
+      var p = getPos(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+
+    function endDraw() {
+      if (isDrawing && hasDrawnStroke) {
+        var word = document.getElementById('targetWriteWord').innerHTML;
+        var rev = document.getElementById('writeMeaningReveal');
+        rev.style.display = 'block';
+        rev.innerHTML = '✍️ 따라 쓴 단어 뜻: <strong>' + word + '</strong> = <strong>' + currentWriteMeaning + '</strong>';
+      }
+      isDrawing = false;
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', moveDraw, { passive: false });
+    window.addEventListener('touchend', endDraw);
+
+    function completeWriting() {
+      var finishedWord = document.getElementById('targetWriteWord').innerHTML;
+      var finishedMeaning = currentWriteMeaning;
+      playChime(true);
+      addReward('write');
+
+      var rev = document.getElementById('writeMeaningReveal');
+      rev.style.display = 'block';
+      rev.innerHTML = '🎉 참 잘했어요! <strong>' + finishedWord + '</strong>는 한글로 <strong>"' + finishedMeaning + '"</strong> 뜻이에요! (+별 1개)';
+
+      speakEn('Great job! ' + finishedWord);
+      setTimeout(function() {
+        pickRandomWriteWord(false);
+      }, 1800);
+    }
+
+    /* ================= 4. 영어 퀴즈 ================= */
+    var currentQuiz = null;
+    var quizAnswered = false;
+    var quizNextTimer = null;
+
+    function playQuizHint() {
+      if (currentQuiz) speakEn(currentQuiz.en);
+    }
+
+    function generateQuiz() {
+      if (quizNextTimer) {
+        clearTimeout(quizNextTimer);
+        quizNextTimer = null;
+      }
+      quizAnswered = false;
+      var pool = wordDatabase.slice(0).sort(function() { return 0.5 - Math.random(); });
+      currentQuiz = pool[0];
+      var opts = [pool[0]];
+      for (var k = 1; k < pool.length && opts.length < 4; k++) {
+        if (pool[k].en !== currentQuiz.en) opts.push(pool[k]);
+      }
+      opts.sort(function() { return 0.5 - Math.random(); });
+
+      document.getElementById('quizArt').innerHTML = renderArtHTML(currentQuiz);
+      document.getElementById('quizFeedback').innerHTML = '';
+      var box = document.getElementById('quizOptions');
+      box.innerHTML = '';
+
+      for (var i = 0; i < opts.length; i++) {
+        (function(o) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'quiz-opt-btn';
+          b.innerHTML = o.en;
+          b.onclick = function() { checkQuiz(o.en); };
+          box.appendChild(b);
+        })(opts[i]);
+      }
+      speakEn(currentQuiz.en);
+    }
+
+    function checkQuiz(ans) {
+      if (quizAnswered || !currentQuiz) return;
+      var fb = document.getElementById('quizFeedback');
+      if (ans === currentQuiz.en) {
+        quizAnswered = true;
+        var opts = document.querySelectorAll('#quizOptions .quiz-opt-btn');
+        for (var i = 0; i < opts.length; i++) opts[i].disabled = true;
+        playChime(true);
+        fb.style.color = '#2EC4B6';
+        fb.innerHTML = '🎉 정답이에요! ' + currentQuiz.en + ' (' + currentQuiz.ko + ')';
+        speakEn('Good job! ' + currentQuiz.en);
+        addReward('quiz');
+        quizNextTimer = setTimeout(generateQuiz, 1300);
+      } else {
+        playChime(false);
+        fb.style.color = '#FF5E5B';
+        fb.innerHTML = '😅 다시 한 번 골라볼까요?';
+        speakEn('Try again!');
+      }
+    }
+
+    /* ================= 5. 공부방 & 탭 전환 ================= */
+    var stickers = ['🦖', '🦄', '🚀', '👑', '🌈', '🐬', '🦁', '🍓', '🤖', '⚡'];
+    function addReward(t) {
+      progress.stars += 1;
+      if (t === 'write') progress.written += 1;
+      if (t === 'quiz') progress.quiz += 1;
+      progress.stickers.push(stickers[Math.floor(Math.random() * stickers.length)]);
+      saveProgress();
+      updateStudyUI();
+    }
+
+    function updateStudyUI() {
+      document.getElementById('starCount').innerHTML = progress.stars;
+      document.getElementById('writtenCount').innerHTML = progress.written;
+      document.getElementById('quizScore').innerHTML = progress.quiz;
+      document.getElementById('stickerBoard').innerHTML = progress.stickers.length
+        ? progress.stickers.join(' ')
+        : '아직 스티커가 없어요. 공부를 시작해 볼까요?';
+    }
+
+    function resetProgress() {
+      if (confirm('정말 모든 스티커와 기록을 초기화할까요?')) {
+        progress = { stars: 0, written: 0, quiz: 0, stickers: [] };
+        saveProgress();
+        updateStudyUI();
+      }
+    }
+
+    function showTab(tabId, btn) {
+      if (tabId !== 'tab3') previousTabId = tabId;
+      var secs = document.querySelectorAll('.section');
+      for (var i = 0; i < secs.length; i++) secs[i].classList.remove('active');
+      var navs = document.querySelectorAll('#mainNav .nav-btn');
+      for (var j = 0; j < navs.length; j++) navs[j].classList.remove('active');
+      var target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+      if (btn) btn.classList.add('active');
+      if (tabId === 'tab1') closeLetterSolo();
+      if (tabId === 'tab2') closeWordSolo();
+      if (tabId === 'tab3') {
+        var curW = document.getElementById('targetWriteWord').innerHTML;
+        setWriteMeaningUI(curW);
+        clearCanvas();
+      }
+      if (tabId === 'tab4') generateQuiz();
+      if (tabId === 'tab5') updateStudyUI();
+    }
+
+    initAlphabet();
+    renderWords();
+    setWriteMeaningUI(document.getElementById('targetWriteWord').innerHTML);
+    clearCanvas();
+    updateStudyUI();
+  </script>
+</body>
+</html>
