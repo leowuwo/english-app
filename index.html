@@ -51,9 +51,36 @@
     .top-write-btn { background: #2EC4B6; color: #fff; border: none; padding: 10px 22px; border-radius: 18px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 3px 0 #1F8E83; }
     .count-info { text-align: center; color: #555; margin-bottom: 10px; font-size: 1.05rem; }
     .word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 14px; }
-    .word-card { position: relative; }
-    .memo-check-btn { position: absolute; top: 8px; right: 8px; border: 2px solid #CBD5E1; background: #FFFDF7; color: #475569; border-radius: 12px; padding: 3px 8px; font-size: 0.78rem; cursor: pointer; z-index: 2; }
-    .memo-check-btn.checked { background: #10B981; border-color: #059669; color: #fff; }
+    .word-card { position: relative; border: 3px solid #FDBA74; border-radius: 20px; background: #FFFDF9; padding: 14px 10px 12px; transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease; }
+    .word-card:hover { transform: translateY(-2px); }
+    .word-card.memorized { border-color: #FF8A00; box-shadow: 0 5px 14px rgba(255, 138, 0, 0.16); background: #FFFBF4; }
+    .card-top-meta { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .card-cat-tag { font-size: 0.78rem; color: #9A3412; background: #FFEDD5; border-radius: 10px; padding: 2px 7px; max-width: 82px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .memo-check-btn { border: 1.5px solid #CBD5E1; background: #F1F5F9; color: #475569; border-radius: 10px; padding: 2px 7px; font-size: 0.76rem; cursor: pointer; line-height: 1.25; }
+    .memo-check-btn.checked { background: #DCFCE7; border-color: #16A34A; color: #15803D; font-weight: bold; }
+    .card-bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 0.78rem; color: #94A3B8; }
+    .card-memo-stamp { color: #16A34A; font-weight: bold; font-size: 0.78rem; }
+
+    .solo-view { background: #fff; border: 4px solid #FDBA74; border-radius: 28px; padding: 28px 24px 36px; text-align: center; box-shadow: 0 10px 26px rgba(0,0,0,0.08); min-height: calc(100vh - 170px); display: flex; flex-direction: column; justify-content: space-between; }
+    .solo-top-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .solo-top-left { display: flex; align-items: center; gap: 10px; }
+    .solo-status-pill { font-size: 0.92rem; padding: 5px 12px; border-radius: 999px; background: #E0F2FE; color: #0369A1; }
+    .solo-status-pill.done { background: #DCFCE7; color: #15803D; }
+    .solo-nav-group { display: flex; align-items: center; gap: 8px; }
+    .solo-step-btn { border: none; border-radius: 14px; padding: 10px 16px; font-size: 1rem; color: #fff; background: #3A86FF; box-shadow: 0 3px 0 #1D4ED8; cursor: pointer; }
+    .solo-step-btn.next { background: #FF7A00; box-shadow: 0 3px 0 #C85500; }
+    .solo-action-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; }
+    .solo-memo-btn { background: #FFFDF7; color: #059669; border: 3px solid #34D399; padding: 11px 20px; font-size: 1.1rem; border-radius: 16px; margin: 6px 4px; cursor: pointer; box-shadow: 0 4px 0 #A7F3D0; }
+    .solo-memo-btn.checked { background: #10B981; color: #fff; border-color: #059669; box-shadow: 0 4px 0 #047857; }
+    @media (min-width: 900px) {
+      main.full-solo-active { max-width: 1280px; padding: 14px 28px 24px; }
+      .solo-view { padding: 32px 44px 42px; min-height: calc(100vh - 155px); }
+      .solo-art { min-height: 220px; }
+      .solo-art .word-emoji { font-size: 10rem; }
+      .solo-word { font-size: 4.2rem; }
+      .solo-meaning { font-size: 2.1rem; }
+    }
+
     .quiz-mode-bar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-bottom: 14px; background: #EFF6FF; border: 2px solid #BFDBFE; border-radius: 16px; padding: 10px 12px; }
     .quiz-mode-btn { padding: 7px 14px; border-radius: 14px; border: 2px solid #90CAF9; background: #fff; color: #1E3A8A; font-size: 0.95rem; cursor: pointer; }
     .quiz-mode-btn.active { background: #3A86FF; color: #fff; border-color: #1D4ED8; }
@@ -175,12 +202,24 @@
       </div>
 
       <div id="wordSoloView" class="solo-view" style="display:none;">
-        <div class="back-bar"><button type="button" class="back-btn" onclick="closeWordSolo()">← 뒤로 가기</button></div>
+        <div class="solo-top-bar">
+          <div class="solo-top-left">
+            <button type="button" class="back-btn" onclick="closeWordSolo()">← 목록으로</button>
+            <span class="solo-status-pill" id="soloWordStatusPill">학습</span>
+          </div>
+          <div class="solo-nav-group">
+            <button type="button" class="solo-step-btn" id="soloPrevWordBtn" onclick="stepWordSolo(-1)">← 이전</button>
+            <button type="button" class="solo-step-btn next" id="soloNextWordBtn" onclick="stepWordSolo(1)">다음 →</button>
+          </div>
+        </div>
         <div class="solo-art" id="soloWordArt"></div>
         <div class="solo-word" id="soloWordEn"></div>
         <div class="solo-meaning" id="soloWordKo"></div>
-        <button type="button" class="action-btn blue" id="soloWordSpeakBtn">🔊 영어 발음 듣기</button>
-        <button type="button" class="action-btn green" id="soloWordWriteBtn">✍️ 따라 쓰기</button>
+        <div class="solo-action-row">
+          <button type="button" class="action-btn blue" id="soloWordSpeakBtn">🔊 영어 발음 듣기</button>
+          <button type="button" class="action-btn green" id="soloWordWriteBtn">✍️ 따라 쓰기</button>
+          <button type="button" class="solo-memo-btn" id="soloWordMemoBtn">☐ 암기 체크</button>
+        </div>
       </div>
     </section>
 
@@ -1128,17 +1167,65 @@
       renderWords();
     }
 
+    var currentFilteredWords = [];
+    var currentSoloWordIndex = -1;
+
+    function syncSoloMemoButton(item) {
+      var btn = document.getElementById('soloWordMemoBtn');
+      var pill = document.getElementById('soloWordStatusPill');
+      if (!btn || !item) return;
+      var checked = isWordMemorized(item);
+      btn.classList.toggle('checked', checked);
+      btn.innerHTML = checked ? '✅ 암기 완료' : '☐ 암기 체크';
+      btn.onclick = function() {
+        toggleWordMemorized(item, null);
+        syncSoloMemoButton(item);
+        renderWords();
+      };
+      if (pill) {
+        pill.classList.toggle('done', checked);
+        pill.innerHTML = checked ? '암기완료' : '학습';
+      }
+    }
+
+    function setMainFullSoloMode(isSolo) {
+      var m = document.querySelector('main');
+      if (m) m.classList.toggle('full-solo-active', Boolean(isSolo));
+    }
+
+    function stepWordSolo(delta) {
+      if (!currentFilteredWords || currentFilteredWords.length === 0) return;
+      if (currentSoloWordIndex < 0) currentSoloWordIndex = 0;
+      var nextIdx = (currentSoloWordIndex + delta + currentFilteredWords.length) % currentFilteredWords.length;
+      openWordSolo(currentFilteredWords[nextIdx], false);
+    }
+
     function openWordSolo(item, skipHistoryPush) {
+      if (!item) return;
+      if (currentFilteredWords.length > 0) {
+        for (var idx = 0; idx < currentFilteredWords.length; idx++) {
+          if (currentFilteredWords[idx].en === item.en && currentFilteredWords[idx].ko === item.ko) {
+            currentSoloWordIndex = idx;
+            break;
+          }
+        }
+      }
       selectedWordForWrite = item.en;
       selectedWordKo = item.ko;
       document.getElementById('topWriteLabel').innerHTML = item.en;
       document.getElementById('wordListView').style.display = 'none';
-      document.getElementById('wordSoloView').style.display = 'block';
+      document.getElementById('wordSoloView').style.display = 'flex';
+      setMainFullSoloMode(true);
       document.getElementById('soloWordArt').innerHTML = renderArtHTML(item);
       document.getElementById('soloWordEn').innerHTML = item.en;
       document.getElementById('soloWordKo').innerHTML = item.ko;
       document.getElementById('soloWordSpeakBtn').onclick = function() { speakEn(item.en); };
-      document.getElementById('soloWordWriteBtn').onclick = function() { previousTabId = 'tab2'; sendToWrite(item.en, item.ko); };
+      document.getElementById('soloWordWriteBtn').onclick = function() {
+        setMainFullSoloMode(false);
+        previousTabId = 'tab2';
+        sendToWrite(item.en, item.ko);
+      };
+      syncSoloMemoButton(item);
       speakEn(item.en);
       if (!skipHistoryPush) pushEngHistoryState();
     }
@@ -1146,6 +1233,7 @@
     function closeWordSolo(skipHistoryPush) {
       document.getElementById('wordSoloView').style.display = 'none';
       document.getElementById('wordListView').style.display = 'block';
+      setMainFullSoloMode(false);
       if (!skipHistoryPush) pushEngHistoryState();
     }
 
@@ -1173,9 +1261,10 @@
         var kwOk = (kw === '' || it.en.toLowerCase().indexOf(kw) !== -1 || it.ko.indexOf(kw) !== -1);
         if (catOk && bandOk && kwOk) filtered.push(it);
       }
+      currentFilteredWords = filtered;
       var catTitle = categoryLabels[currentCategory] || '전체';
       var memoTotal = getMemorizedWordItems().length;
-      document.getElementById('wordCountInfo').innerHTML = catTitle + ': ' + filtered.length + '개 단어 · 암기 체크 ' + memoTotal + '개';
+      document.getElementById('wordCountInfo').innerHTML = catTitle + ': ' + filtered.length + '개 단어 · 암기완료 ' + memoTotal + '개';
       if (filtered.length > 0) {
         selectedWordForWrite = filtered[0].en;
         selectedWordKo = filtered[0].ko;
@@ -1188,19 +1277,26 @@
       for (var j = 0; j < filtered.length; j++) {
         (function(item) {
           var isMemo = isWordMemorized(item);
+          var catShort = categoryLabels[item.cat] || '단어';
           var card = document.createElement('div');
-          card.className = 'word-card';
+          card.className = 'word-card' + (isMemo ? ' memorized' : '');
           card.innerHTML =
-            '<button type="button" class="memo-check-btn' + (isMemo ? ' checked' : '') + '" title="암기 체크">' + (isMemo ? '✅ 암기됨' : '☐ 암기') + '</button>' +
+            '<div class="card-top-meta">' +
+              '<span class="card-cat-tag">' + catShort + '</span>' +
+              '<button type="button" class="memo-check-btn' + (isMemo ? ' checked' : '') + '" title="암기 체크">' + (isMemo ? '암기완료' : '학습') + '</button>' +
+            '</div>' +
             '<div class="word-art">' + renderArtHTML(item) + '</div>' +
             '<div class="word-en">' + item.en + '</div>' +
-            '<div class="word-ko">' + item.ko + '</div>';
+            '<div class="word-ko">' + item.ko + '</div>' +
+            '<div class="card-bottom-row">' +
+              '<span>단어카드</span>' +
+              '<span class="card-memo-stamp">' + (isMemo ? '✓ 암기' : '') + '</span>' +
+            '</div>';
           var mBtn = card.querySelector('.memo-check-btn');
           mBtn.onclick = function(ev) {
             ev.stopPropagation();
-            toggleWordMemorized(item, mBtn);
-            var curMemoTotal = getMemorizedWordItems().length;
-            document.getElementById('wordCountInfo').innerHTML = catTitle + ': ' + filtered.length + '개 단어 · 암기 체크 ' + curMemoTotal + '개';
+            toggleWordMemorized(item, null);
+            renderWords();
           };
           card.onclick = function() { openWordSolo(item); };
           grid.appendChild(card);
@@ -1478,6 +1574,7 @@
 
     function showTab(tabId, btn, skipReset, skipHistoryPush) {
       if (tabId !== 'tab3') previousTabId = tabId;
+      if (tabId !== 'tab2') setMainFullSoloMode(false);
       var secs = document.querySelectorAll('.section');
       for (var i = 0; i < secs.length; i++) secs[i].classList.remove('active');
       var navs = document.querySelectorAll('#mainNav .nav-btn');
