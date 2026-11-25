@@ -51,6 +51,13 @@
     .top-write-btn { background: #2EC4B6; color: #fff; border: none; padding: 10px 22px; border-radius: 18px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 3px 0 #1F8E83; }
     .count-info { text-align: center; color: #555; margin-bottom: 10px; font-size: 1.05rem; }
     .word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 14px; }
+    .word-card { position: relative; }
+    .memo-check-btn { position: absolute; top: 8px; right: 8px; border: 2px solid #CBD5E1; background: #FFFDF7; color: #475569; border-radius: 12px; padding: 3px 8px; font-size: 0.78rem; cursor: pointer; z-index: 2; }
+    .memo-check-btn.checked { background: #10B981; border-color: #059669; color: #fff; }
+    .quiz-mode-bar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-bottom: 14px; background: #EFF6FF; border: 2px solid #BFDBFE; border-radius: 16px; padding: 10px 12px; }
+    .quiz-mode-btn { padding: 7px 14px; border-radius: 14px; border: 2px solid #90CAF9; background: #fff; color: #1E3A8A; font-size: 0.95rem; cursor: pointer; }
+    .quiz-mode-btn.active { background: #3A86FF; color: #fff; border-color: #1D4ED8; }
+    .quiz-memo-badge { font-size: 0.9rem; color: #065F46; background: #D1FAE5; padding: 5px 10px; border-radius: 12px; }
     .word-card { background: #fff; border-radius: 20px; padding: 16px 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border: 3px solid #BFDBFE; cursor: pointer; }
     .word-art { height: 92px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
     .word-emoji { font-size: 4.1rem; line-height: 1; }
@@ -204,6 +211,11 @@
     <section id="tab4" class="section">
       <h2>🎯 그림과 영어 발음을 듣고 정답을 맞혀요!</h2>
       <div class="quiz-box">
+        <div class="quiz-mode-bar" id="quizModeBar">
+          <button type="button" class="quiz-mode-btn active" id="quizModeAllBtn" onclick="setQuizSourceMode('all', this)">🌈 전체 단어 퀴즈</button>
+          <button type="button" class="quiz-mode-btn" id="quizModeMemoBtn" onclick="setQuizSourceMode('memo', this)">✅ 암기 체크 단어 퀴즈</button>
+          <span class="quiz-memo-badge" id="quizMemoCountLabel">암기 체크: 0개</span>
+        </div>
         <div class="quiz-art" id="quizArt"></div>
         <button type="button" class="action-btn blue" onclick="playQuizHint()">🔊 영어 발음 듣기</button>
         <div class="quiz-options" id="quizOptions"></div>
@@ -227,6 +239,244 @@
   </main>
 
   <script>
+    var isHandlingEngPopState = false;
+    var memorizedWords = loadMemorizedWords();
+    var quizSourceMode = 'all';
+
+    function loadMemorizedWords() {
+      try {
+        var raw = window.localStorage.getItem('englishPlaygroundMemoV1');
+        if (raw) {
+          var arr = JSON.parse(raw);
+          if (Array.isArray(arr)) return arr;
+        }
+      } catch (e) {}
+      return [];
+    }
+
+    function saveMemorizedWords() {
+      try {
+        window.localStorage.setItem('englishPlaygroundMemoV1', JSON.stringify(memorizedWords));
+      } catch (e) {}
+      updateMemoCounterUI();
+    }
+
+    function getWordMemoKey(item) {
+      return (item.en || '').toLowerCase().trim() + '::' + (item.ko || '').trim();
+    }
+
+    function isWordMemorized(item) {
+      var k = getWordMemoKey(item);
+      return memorizedWords.indexOf(k) !== -1;
+    }
+
+    function toggleWordMemorized(item, btnEl) {
+      var k = getWordMemoKey(item);
+      var idx = memorizedWords.indexOf(k);
+      var nowChecked = false;
+      if (idx === -1) {
+        memorizedWords.push(k);
+        nowChecked = true;
+      } else {
+        memorizedWords.splice(idx, 1);
+        nowChecked = false;
+      }
+      saveMemorizedWords();
+      if (btnEl) {
+        btnEl.classList.toggle('checked', nowChecked);
+        btnEl.innerHTML = nowChecked ? '✅ 암기됨' : '☐ 암기';
+      }
+      if (quizSourceMode === 'memo') {
+        var activeSec = document.querySelector('.section.active');
+        if (activeSec && activeSec.id === 'tab4') {
+          generateQuiz();
+        }
+      }
+    }
+
+    function getMemorizedWordItems() {
+      var list = [];
+      for (var i = 0; i < wordDatabase.length; i++) {
+        if (isWordMemorized(wordDatabase[i])) {
+          list.push(wordDatabase[i]);
+        }
+      }
+      return list;
+    }
+
+    function updateMemoCounterUI() {
+      var cnt = getMemorizedWordItems().length;
+      var lbl = document.getElementById('quizMemoCountLabel');
+      if (lbl) lbl.innerHTML = '암기 체크: ' + cnt + '개';
+    }
+
+    function setQuizSourceMode(mode, btn) {
+      quizSourceMode = mode;
+      var btns = document.querySelectorAll('#quizModeBar .quiz-mode-btn');
+      for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+      if (btn) btn.classList.add('active');
+      generateQuiz();
+    }
+
+    function captureEngNavSnapshot() {
+      var activeSec = document.querySelector('.section.active');
+      var tabId = (activeSec && activeSec.id) ? activeSec.id : 'tab1';
+      var letterSoloOpen = false;
+      var letterChar = null;
+      var wordSoloOpen = false;
+      var wordSoloEn = null;
+
+      if (tabId === 'tab1') {
+        var lSolo = document.getElementById('letterSoloView');
+        if (lSolo && lSolo.style.display !== 'none') {
+          letterSoloOpen = true;
+          letterChar = document.getElementById('soloLetterChar').textContent || null;
+        }
+      } else if (tabId === 'tab2') {
+        var wSolo = document.getElementById('wordSoloView');
+        if (wSolo && wSolo.style.display !== 'none') {
+          wordSoloOpen = true;
+          wordSoloEn = document.getElementById('soloWordEn').textContent || null;
+        }
+      }
+
+      return {
+        tabId: tabId,
+        previousTabId: previousTabId,
+        currentCategory: currentCategory,
+        band21To100: band21To100,
+        letterSoloOpen: letterSoloOpen,
+        letterChar: letterChar,
+        wordSoloOpen: wordSoloOpen,
+        wordSoloEn: wordSoloEn,
+        writeWord: document.getElementById('targetWriteWord') ? document.getElementById('targetWriteWord').textContent : 'apple',
+        writeKo: currentWriteMeaning,
+        quizSourceMode: quizSourceMode
+      };
+    }
+
+    function isSameEngSnap(a, b) {
+      if (!a || !b) return false;
+      return (
+        a.tabId === b.tabId &&
+        a.currentCategory === b.currentCategory &&
+        a.band21To100 === b.band21To100 &&
+        Boolean(a.letterSoloOpen) === Boolean(b.letterSoloOpen) &&
+        a.letterChar === b.letterChar &&
+        Boolean(a.wordSoloOpen) === Boolean(b.wordSoloOpen) &&
+        a.wordSoloEn === b.wordSoloEn &&
+        a.writeWord === b.writeWord &&
+        a.quizSourceMode === b.quizSourceMode
+      );
+    }
+
+    function pushEngHistoryState() {
+      if (isHandlingEngPopState) return;
+      try {
+        if (!window.history || typeof window.history.pushState !== 'function') return;
+        var snap = captureEngNavSnapshot();
+        var prev = window.history.state;
+        if (prev && prev.__engApp && isSameEngSnap(prev.snap, snap)) return;
+        window.history.pushState({
+          __engApp: true,
+          snap: snap
+        }, '', window.location.href);
+      } catch (e) {}
+    }
+
+    function applyEngNavSnapshot(snap) {
+      if (!snap) return;
+      if (snap.previousTabId) previousTabId = snap.previousTabId;
+      if (snap.currentCategory) currentCategory = snap.currentCategory;
+      if (snap.band21To100) band21To100 = snap.band21To100;
+      if (snap.quizSourceMode) quizSourceMode = snap.quizSourceMode;
+
+      var targetTab = snap.tabId || 'tab1';
+      var map = { tab1: 0, tab2: 1, tab3: 2, tab4: 3, tab5: 4 };
+      var idx = (map[targetTab] !== undefined) ? map[targetTab] : 0;
+      var navBtn = document.querySelectorAll('#mainNav .nav-btn')[idx] || null;
+      showTab(targetTab, navBtn, true, true);
+
+      if (targetTab === 'tab1') {
+        if (snap.letterSoloOpen && snap.letterChar) {
+          var foundL = null;
+          for (var i = 0; i < alphabetData.length; i++) {
+            if ((alphabetData[i].up + alphabetData[i].low) === snap.letterChar) {
+              foundL = alphabetData[i];
+              break;
+            }
+          }
+          if (foundL) openLetterSolo(foundL, true);
+          else closeLetterSolo(true);
+        } else {
+          closeLetterSolo(true);
+        }
+      } else if (targetTab === 'tab2') {
+        renderWords();
+        if (snap.wordSoloOpen && snap.wordSoloEn) {
+          var foundW = null;
+          for (var j = 0; j < wordDatabase.length; j++) {
+            if (wordDatabase[j].en === snap.wordSoloEn) {
+              foundW = wordDatabase[j];
+              break;
+            }
+          }
+          if (foundW) openWordSolo(foundW, true);
+          else closeWordSolo(true);
+        } else {
+          closeWordSolo(true);
+        }
+      } else if (targetTab === 'tab3') {
+        var wText = snap.writeWord || 'apple';
+        document.getElementById('targetWriteWord').innerHTML = wText;
+        setWriteMeaningUI(wText, snap.writeKo);
+        clearCanvas();
+      } else if (targetTab === 'tab4') {
+        var allB = document.getElementById('quizModeAllBtn');
+        var memoB = document.getElementById('quizModeMemoBtn');
+        if (allB && memoB) {
+          allB.classList.toggle('active', quizSourceMode !== 'memo');
+          memoB.classList.toggle('active', quizSourceMode === 'memo');
+        }
+        generateQuiz();
+      }
+    }
+
+    window.addEventListener('popstate', function(event) {
+      isHandlingEngPopState = true;
+      try {
+        if (event.state && event.state.__engApp && event.state.snap) {
+          applyEngNavSnapshot(event.state.snap);
+        } else {
+          applyEngNavSnapshot({
+            tabId: 'tab1',
+            previousTabId: 'tab2',
+            currentCategory: 'all',
+            band21To100: 'all',
+            letterSoloOpen: false,
+            letterChar: null,
+            wordSoloOpen: false,
+            wordSoloEn: null,
+            writeWord: 'apple',
+            writeKo: '사과',
+            quizSourceMode: 'all'
+          });
+        }
+      } finally {
+        setTimeout(function() { isHandlingEngPopState = false; }, 0);
+      }
+    });
+
+    window.addEventListener('keydown', function(event) {
+      if (event.altKey && event.key === 'ArrowLeft') {
+        var activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        if (activeTag !== 'input' && activeTag !== 'textarea' && activeTag !== 'select') {
+          event.preventDefault();
+          window.history.back();
+        }
+      }
+    });
+
     var memoryStore = { stars: 0, written: 0, quiz: 0, stickers: [] };
     var progress = loadProgress();
     var voiceProfile = 'girl';
@@ -386,7 +636,7 @@
 
     var meaningLookup = {};
 
-    function openLetterSolo(item) {
+    function openLetterSolo(item, skipHistoryPush) {
       document.getElementById('letterListView').style.display = 'none';
       document.getElementById('letterSoloView').style.display = 'block';
       document.getElementById('soloLetterChar').innerHTML = item.up + item.low;
@@ -397,11 +647,13 @@
         sendToWrite(item.up + item.low, '알파벳 ' + item.up + item.low + ' (' + item.word + ' · ' + item.ko + ')');
       };
       speakEn(item.up + ', ' + item.word);
+      if (!skipHistoryPush) pushEngHistoryState();
     }
 
-    function closeLetterSolo() {
+    function closeLetterSolo(skipHistoryPush) {
       document.getElementById('letterSoloView').style.display = 'none';
       document.getElementById('letterListView').style.display = 'block';
+      if (!skipHistoryPush) pushEngHistoryState();
     }
 
     function initAlphabet() {
@@ -876,7 +1128,7 @@
       renderWords();
     }
 
-    function openWordSolo(item) {
+    function openWordSolo(item, skipHistoryPush) {
       selectedWordForWrite = item.en;
       selectedWordKo = item.ko;
       document.getElementById('topWriteLabel').innerHTML = item.en;
@@ -888,11 +1140,13 @@
       document.getElementById('soloWordSpeakBtn').onclick = function() { speakEn(item.en); };
       document.getElementById('soloWordWriteBtn').onclick = function() { previousTabId = 'tab2'; sendToWrite(item.en, item.ko); };
       speakEn(item.en);
+      if (!skipHistoryPush) pushEngHistoryState();
     }
 
-    function closeWordSolo() {
+    function closeWordSolo(skipHistoryPush) {
       document.getElementById('wordSoloView').style.display = 'none';
       document.getElementById('wordListView').style.display = 'block';
+      if (!skipHistoryPush) pushEngHistoryState();
     }
 
     function matchNumberBand(item) {
@@ -920,7 +1174,8 @@
         if (catOk && bandOk && kwOk) filtered.push(it);
       }
       var catTitle = categoryLabels[currentCategory] || '전체';
-      document.getElementById('wordCountInfo').innerHTML = catTitle + ': ' + filtered.length + '개 단어';
+      var memoTotal = getMemorizedWordItems().length;
+      document.getElementById('wordCountInfo').innerHTML = catTitle + ': ' + filtered.length + '개 단어 · 암기 체크 ' + memoTotal + '개';
       if (filtered.length > 0) {
         selectedWordForWrite = filtered[0].en;
         selectedWordKo = filtered[0].ko;
@@ -932,12 +1187,21 @@
       }
       for (var j = 0; j < filtered.length; j++) {
         (function(item) {
+          var isMemo = isWordMemorized(item);
           var card = document.createElement('div');
           card.className = 'word-card';
           card.innerHTML =
+            '<button type="button" class="memo-check-btn' + (isMemo ? ' checked' : '') + '" title="암기 체크">' + (isMemo ? '✅ 암기됨' : '☐ 암기') + '</button>' +
             '<div class="word-art">' + renderArtHTML(item) + '</div>' +
             '<div class="word-en">' + item.en + '</div>' +
             '<div class="word-ko">' + item.ko + '</div>';
+          var mBtn = card.querySelector('.memo-check-btn');
+          mBtn.onclick = function(ev) {
+            ev.stopPropagation();
+            toggleWordMemorized(item, mBtn);
+            var curMemoTotal = getMemorizedWordItems().length;
+            document.getElementById('wordCountInfo').innerHTML = catTitle + ': ' + filtered.length + '개 단어 · 암기 체크 ' + curMemoTotal + '개';
+          };
           card.onclick = function() { openWordSolo(item); };
           grid.appendChild(card);
         })(filtered[j]);
@@ -1104,17 +1368,50 @@
         quizNextTimer = null;
       }
       quizAnswered = false;
-      var pool = wordDatabase.slice(0).sort(function() { return 0.5 - Math.random(); });
+      updateMemoCounterUI();
+
+      var allB = document.getElementById('quizModeAllBtn');
+      var memoB = document.getElementById('quizModeMemoBtn');
+      if (allB && memoB) {
+        allB.classList.toggle('active', quizSourceMode !== 'memo');
+        memoB.classList.toggle('active', quizSourceMode === 'memo');
+      }
+
+      var memoPool = getMemorizedWordItems();
+      var box = document.getElementById('quizOptions');
+      var fb = document.getElementById('quizFeedback');
+
+      if (quizSourceMode === 'memo' && memoPool.length === 0) {
+        currentQuiz = null;
+        document.getElementById('quizArt').innerHTML = '<div style="font-size:3.2rem;">📝</div>';
+        box.innerHTML = '';
+        fb.style.color = '#1D4ED8';
+        fb.innerHTML = '2. 그림 영단어에서 암기 체크 버튼을 눌러 단어를 먼저 체크해 보세요!';
+        return;
+      }
+
+      var sourceList = (quizSourceMode === 'memo') ? memoPool : wordDatabase;
+      var pool = sourceList.slice(0).sort(function() { return 0.5 - Math.random(); });
       currentQuiz = pool[0];
       var opts = [pool[0]];
+
       for (var k = 1; k < pool.length && opts.length < 4; k++) {
         if (pool[k].en !== currentQuiz.en) opts.push(pool[k]);
+      }
+      if (opts.length < 4) {
+        var extraPool = wordDatabase.slice(0).sort(function() { return 0.5 - Math.random(); });
+        for (var m = 0; m < extraPool.length && opts.length < 4; m++) {
+          var already = false;
+          for (var z = 0; z < opts.length; z++) {
+            if (opts[z].en === extraPool[m].en) { already = true; break; }
+          }
+          if (!already) opts.push(extraPool[m]);
+        }
       }
       opts.sort(function() { return 0.5 - Math.random(); });
 
       document.getElementById('quizArt').innerHTML = renderArtHTML(currentQuiz);
-      document.getElementById('quizFeedback').innerHTML = '';
-      var box = document.getElementById('quizOptions');
+      fb.innerHTML = '';
       box.innerHTML = '';
 
       for (var i = 0; i < opts.length; i++) {
@@ -1179,7 +1476,7 @@
       }
     }
 
-    function showTab(tabId, btn) {
+    function showTab(tabId, btn, skipReset, skipHistoryPush) {
       if (tabId !== 'tab3') previousTabId = tabId;
       var secs = document.querySelectorAll('.section');
       for (var i = 0; i < secs.length; i++) secs[i].classList.remove('active');
@@ -1188,22 +1485,34 @@
       var target = document.getElementById(tabId);
       if (target) target.classList.add('active');
       if (btn) btn.classList.add('active');
-      if (tabId === 'tab1') closeLetterSolo();
-      if (tabId === 'tab2') closeWordSolo();
-      if (tabId === 'tab3') {
-        var curW = document.getElementById('targetWriteWord').innerHTML;
-        setWriteMeaningUI(curW);
-        clearCanvas();
+      if (!skipReset) {
+        if (tabId === 'tab1') closeLetterSolo(true);
+        if (tabId === 'tab2') closeWordSolo(true);
+        if (tabId === 'tab3') {
+          var curW = document.getElementById('targetWriteWord').innerHTML;
+          setWriteMeaningUI(curW);
+          clearCanvas();
+        }
+        if (tabId === 'tab4') generateQuiz();
+        if (tabId === 'tab5') updateStudyUI();
       }
-      if (tabId === 'tab4') generateQuiz();
-      if (tabId === 'tab5') updateStudyUI();
+      if (!skipHistoryPush) pushEngHistoryState();
     }
 
     initAlphabet();
     renderWords();
+    updateMemoCounterUI();
     setWriteMeaningUI(document.getElementById('targetWriteWord').innerHTML);
     clearCanvas();
     updateStudyUI();
+    try {
+      if (window.history && typeof window.history.replaceState === 'function') {
+        window.history.replaceState({
+          __engApp: true,
+          snap: captureEngNavSnapshot()
+        }, '', window.location.href);
+      }
+    } catch (e) {}
   </script>
 </body>
 </html>
